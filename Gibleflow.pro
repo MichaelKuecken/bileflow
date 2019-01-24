@@ -27,11 +27,15 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         gbileflow.cpp \
-    model.cpp
+    model.cpp \
+    tabcontainer.cpp \
+    diagram.cpp
 
 HEADERS += \
         gbileflow.h \
-    model.h
+    model.h \
+    tabcontainer.h \
+    diagram.h
 
 FORMS += \
         gbileflow.ui
