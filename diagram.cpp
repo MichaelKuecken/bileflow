@@ -2,16 +2,23 @@
 #include <QPainterPath>
 #include <iostream>
 #include <math.h>
+#include <QGraphicsItemGroup>
 
-Diagram::Diagram(QList<double> dataset1, QList<double> dataset2)
+Diagram::Diagram()
 {
+    row = -1;
     _parent = new QGraphicsView();
-    //_parent->setParent(holder);
-    _scene = new QGraphicsScene(QRect(0,0,1000,1000));
+    _scene = new QGraphicsScene();
+
+}
+
+//have to be called before drawing!
+void Diagram::set_parent(QWidget* parent)
+{
+    holder = parent;
+    _parent->setParent(holder);
+    _parent->setGeometry(holder->geometry());
     _scene->setParent(_parent);
-    _data1 = dataset1;
-    _data2 = dataset2;
-    draw(dataset1, dataset2);
 }
 
 int getFac(double bereich)
@@ -19,7 +26,7 @@ int getFac(double bereich)
     int fac = 0;
     if (bereich >= 1)
     {
-        while (bereich > pow(10, fac))
+        while (bereich > pow(10, fac)*2)
         {
             ++fac;
         }
@@ -27,7 +34,7 @@ int getFac(double bereich)
     }
     else
     {
-        while(bereich <= pow(10, fac))
+        while(bereich <= pow(10, fac)*2)
         {
             --fac;
         }
@@ -35,38 +42,40 @@ int getFac(double bereich)
     return fac;
 }
 
-double getPosX(int leftOffset, double chartsize, double value,double min, double frame)
+double Diagram::getPosX(double value)
 {
-    return leftOffset + chartsize * ((value - min) / frame);
+    return edge_left + chartSizeX * ((value - sx) / frameX);
 }
 
-double getPosY(int bottomOffset, double sceneSize,double chartsize, double value,double min, double frame)
+double Diagram::getPosY(double value)
 {
-    return sceneSize - bottomOffset - chartsize * ((value - min)/ frame);
+    return sceneSizeY - edge_botom - chartSizeY * ((value - sy)/ frameY);
 }
 
 void Diagram::draw(QList<double> zahlenx,QList<double> zahleny, int sizeFac)
 {
-    _parent->setGeometry(this->geometry());
+    ///save data
+    _data1 = zahlenx;
+    _data2 = zahleny;
     if(zahleny.length() && zahleny.length() == zahlenx.length())
     {
-        //set offset
-        int edge_left = 40;
-        int edge_right = 20;
-        int edge_top = 20;
-        int edge_botom = 20;
+        ///set offset
+        edge_left = 40;
+        edge_right = 20;
+        edge_top = 20;
+        edge_botom = 20;
 
-        //get largest and smallest value
-        //set to 0 to guarantee, that the axis stay visible
+        ///get largest and smallest value
+        ///set to 0 to guarantee, that the axis stay visible
 
-        double sy = 0;
-        double ly = 0;
-        double sx = 0;
-        double lx = 0;
+        sy = 0;
+        ly = 0;
+        sx = 0;
+        lx = 0;
 
-        double rsmallx = zahlenx[0];
+        rsmallx = zahlenx[0];
 
-        //find smallest/biggest value
+        ///find smallest/biggest value
         for(int i = 0; i < zahlenx.length(); ++i)
         {
             if(sy > zahleny[i]){sy = zahleny[i];}
@@ -76,52 +85,52 @@ void Diagram::draw(QList<double> zahlenx,QList<double> zahleny, int sizeFac)
             if(rsmallx < zahlenx[i]){rsmallx = zahlenx[i];}
         }
 
-        //get the frame of values
-        double frameY = ly - sy;
-        double frameX = lx - sx;
+        ///get the frame of values
+        frameY = ly - sy;
+        frameX = lx - sx;
 
-        //get factor
-        int facY = getFac(frameY);
-        int facX =getFac(frameX);
+        ///get factor
+        facY = getFac(frameY);
+        facX =getFac(frameX);
 
-        //get scene size
+        ///get scene size
 
         if(edge_left < QString::number(pow(10,facY)).length() * 8)
         {
             edge_left = QString::number(pow(10,facY)).length() * 8;
         }
 
-        double sceneSizeY = edge_top + edge_botom + (frameY*pow(10, -1*facY))*sizeFac;
-        double sceneSizeX = edge_left + edge_right + (frameX*pow(10, -1*facX))*sizeFac;
+        sceneSizeY = edge_top + edge_botom + (frameY*pow(10, -1*facY))*sizeFac;
+        sceneSizeX = edge_left + edge_right + (frameX*pow(10, -1*facX))*sizeFac;
 
-        if(sceneSizeY < 400){sceneSizeY = 425;}
-        if(sceneSizeX < 400){sceneSizeX = 700;}
-        double chartSizeY = sceneSizeY - edge_top - edge_botom;
-        double chartSizeX = sceneSizeX - edge_left - edge_right;
+        if(sceneSizeY < holder->height() - 25){sceneSizeY = holder->height() - 25;}
+        if(sceneSizeX < holder->width() - 25){sceneSizeX = holder->width() - 25;}
+        chartSizeY = sceneSizeY - edge_top - edge_botom;
+        chartSizeX = sceneSizeX - edge_left - edge_right;
         _scene->setSceneRect(0,0,sceneSizeX,sceneSizeY);
 
-        //paint Axis
-        QGraphicsLineItem* y_axis = new QGraphicsLineItem(getPosX(edge_left, chartSizeX, 0, sx, frameX),edge_top,
-                                                          getPosX(edge_left, chartSizeX, 0, sx, frameX),sceneSizeY - edge_botom);
-        QGraphicsLineItem* x_axis = new QGraphicsLineItem(edge_left,getPosY(edge_botom,sceneSizeY,chartSizeY,0,sy,frameY),sceneSizeX - edge_right,
-                                                          getPosY(edge_botom,sceneSizeY,chartSizeY,0,sy,frameY));
+        ///paint Axis
+        y_axis = new QGraphicsLineItem(getPosX(0),edge_top,
+                                                          getPosX(0),sceneSizeY - edge_botom);
+        x_axis = new QGraphicsLineItem(edge_left,getPosY(0),sceneSizeX - edge_right,
+                                                          getPosY(0));
         y_axis->setPen(QPen(Qt::black, 2));
         x_axis->setPen(QPen(Qt::black, 2));
         QGraphicsSimpleTextItem* qgsti_text = new QGraphicsSimpleTextItem(QString::number(0), x_axis);
         qgsti_text->setScale(0.80);
-        qgsti_text->setPos(getPosX(edge_left, chartSizeX, 0, sx, frameX) - QString::number(0).length() * 10, getPosY(edge_botom,sceneSizeY,chartSizeY,0,sy,frameY));
+        qgsti_text->setPos(getPosX(0) - QString::number(0).length() * 10, getPosY(0));
         _scene->addItem(y_axis);
         _scene->addItem(x_axis);
 
-        //paint grid
+        ///paint grid
         for(double x = pow(10,facX); x <= lx; x += pow(10,facX))
         {
 
-            QGraphicsLineItem* y_gridline = new QGraphicsLineItem(getPosX(edge_left, chartSizeX, x, sx, frameX),edge_top,
-                                                              getPosX(edge_left, chartSizeX, x, sx, frameX),sceneSizeY - edge_botom);
+            QGraphicsLineItem* y_gridline = new QGraphicsLineItem(getPosX(x),edge_top,
+                                                              getPosX(x),sceneSizeY - edge_botom);
             QGraphicsSimpleTextItem* qgsti_text = new QGraphicsSimpleTextItem(QString::number(x), y_gridline);
             qgsti_text->setScale(0.80);
-            qgsti_text->setPos(getPosX(edge_left, chartSizeX, x, sx, frameX) - QString::number(x).length() * 8, getPosY(edge_botom,sceneSizeY,chartSizeY,0,sy,frameY));
+            qgsti_text->setPos(getPosX(x) - QString::number(x).length() * 8, getPosY(0));
             y_gridline->setPen(QPen(Qt::gray, 1));
             _scene->addItem(y_gridline);
         }
@@ -129,11 +138,11 @@ void Diagram::draw(QList<double> zahlenx,QList<double> zahleny, int sizeFac)
         for(double x = -1 * pow(10,facX); x >= sx; x -= pow(10,facX))
         {
 
-            QGraphicsLineItem* y_gridline = new QGraphicsLineItem(getPosX(edge_left, chartSizeX, x, sx, frameX),edge_top,
-                                                              getPosX(edge_left, chartSizeX, x, sx, frameX),sceneSizeY - edge_botom);
+            QGraphicsLineItem* y_gridline = new QGraphicsLineItem(getPosX(x),edge_top,
+                                                              getPosX(x),sceneSizeY - edge_botom);
             QGraphicsSimpleTextItem* qgsti_text = new QGraphicsSimpleTextItem(QString::number(x), y_gridline);
             qgsti_text->setScale(0.80);
-            qgsti_text->setPos(getPosX(edge_left, chartSizeX, x, sx, frameX) - QString::number(x).length() * 8, getPosY(edge_botom,sceneSizeY,chartSizeY,0,sy,frameY));
+            qgsti_text->setPos(getPosX(x) - QString::number(x).length() * 8, getPosY(0));
             y_gridline->setPen(QPen(Qt::gray, 1));
             _scene->addItem(y_gridline);
         }
@@ -141,11 +150,11 @@ void Diagram::draw(QList<double> zahlenx,QList<double> zahleny, int sizeFac)
         for(double y = pow(10,facY); y <= ly; y += pow(10,facY))
         {
 
-            QGraphicsLineItem* x_gridline = new QGraphicsLineItem(edge_left,getPosY(edge_botom,sceneSizeY,chartSizeY,y,sy,frameY),sceneSizeX - edge_right,
-                                                                  getPosY(edge_botom,sceneSizeY,chartSizeY,y,sy,frameY));
+            QGraphicsLineItem* x_gridline = new QGraphicsLineItem(edge_left,getPosY(y),sceneSizeX - edge_right,
+                                                                  getPosY(y));
             QGraphicsSimpleTextItem* qgsti_text = new QGraphicsSimpleTextItem(QString::number(y), x_gridline);
             qgsti_text->setScale(0.80);
-            qgsti_text->setPos(getPosX(edge_left, chartSizeX, 0, sx, frameX) - QString::number(y).length() * 8, getPosY(edge_botom,sceneSizeY,chartSizeY,y,sy,frameY));
+            qgsti_text->setPos(getPosX(0) - QString::number(y).length() * 8, getPosY(y));
             x_gridline->setPen(QPen(Qt::gray, 1));
             _scene->addItem(x_gridline);
         }
@@ -153,27 +162,62 @@ void Diagram::draw(QList<double> zahlenx,QList<double> zahleny, int sizeFac)
         for(double y = -1 * pow(10,facY); y >= sy; y -= pow(10,facY))
         {
 
-            QGraphicsLineItem* x_gridline = new QGraphicsLineItem(edge_left,getPosY(edge_botom,sceneSizeY,chartSizeY,y,sy,frameY),sceneSizeX - edge_right,
-                                                                  getPosY(edge_botom,sceneSizeY,chartSizeY,y,sy,frameY));
+            QGraphicsLineItem* x_gridline = new QGraphicsLineItem(edge_left,getPosY(y),sceneSizeX - edge_right,
+                                                                  getPosY(y));
             QGraphicsSimpleTextItem* qgsti_text = new QGraphicsSimpleTextItem(QString::number(y), x_gridline);
             qgsti_text->setScale(0.80);
-            qgsti_text->setPos(getPosX(edge_left, chartSizeX, 0, sx, frameX) - QString::number(y).length() * 8, getPosY(edge_botom,sceneSizeY,chartSizeY,y,sy,frameY));
+            qgsti_text->setPos(getPosX(0) - QString::number(y).length() * 8, getPosY(y));
             x_gridline->setPen(QPen(Qt::gray, 1));
             _scene->addItem(x_gridline);
         }
 
-        //draw Values
+        ///draw Values
         for(int x = 0; x < zahlenx.length() - 1; ++x )
         {
-            QGraphicsLineItem* connect = new QGraphicsLineItem(getPosX(edge_left, chartSizeX, zahlenx[x], sx, frameX),getPosY(edge_botom,sceneSizeY,chartSizeY,zahleny[x],sy,frameY),
-                                                              getPosX(edge_left, chartSizeX, zahlenx[x + 1], sx, frameX),getPosY(edge_botom,sceneSizeY,chartSizeY,zahleny[x + 1],sy,frameY));
+            QGraphicsLineItem* connect = new QGraphicsLineItem(getPosX(zahlenx[x]),getPosY(zahleny[x]),
+                                                              getPosX(zahlenx[x + 1]),getPosY(zahleny[x + 1]));
             connect->setPen(QPen(Qt::blue, 1));
             _scene->addItem(connect);
         }
 
         //update scene
         _parent->setScene(_scene);
-        _parent->centerOn(getPosX(edge_left, chartSizeX, 0, sx, frameX),getPosY(edge_botom,sceneSizeY,chartSizeY,0,sy,frameY));
+        _parent->centerOn(getPosX(0),getPosY(0));
         _parent->show();
+    }
+}
+
+void Diagram::single_point(int add)
+{
+    row += add;
+    if(xpoint != nullptr)
+    {
+        _scene->removeItem(xpoint);
+        _scene->removeItem(ypoint);
+        xpoint = nullptr;
+        ypoint = nullptr;
+    }
+    if(row >= 0 && row < _data1.length())
+    {
+        ypoint = new QGraphicsLineItem(getPosX(_data1[row]),edge_top, getPosX(_data1[row]),sceneSizeY - edge_botom);
+        xpoint = new QGraphicsLineItem(edge_left,getPosY(_data2[row]),sceneSizeX - edge_right,getPosY(_data2[row]));
+
+        ypoint->setPen(QPen(Qt::red, 1));
+        xpoint->setPen(QPen(Qt::red, 1));
+
+        QGraphicsSimpleTextItem* qgsti_text = new QGraphicsSimpleTextItem(QString(), xpoint);
+        qgsti_text->setScale(0.80);
+        QString txt = "(x: " + QString::number(_data1[row]) + "|y: " + QString::number(_data2[row]) + ")";
+        qgsti_text->setText(txt);
+        qgsti_text->setPos(getPosX(_data1[row]) - txt.length() * 5, getPosY(_data2[row]) - 20);
+        qgsti_text->setBrush(QBrush(Qt::red));
+
+        _scene->addItem(xpoint);
+        _scene->addItem(ypoint);
+        _parent->show();
+    }else if(row < 0){
+        row = -1;
+    }else{
+        row = _data1.length();
     }
 }

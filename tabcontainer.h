@@ -16,9 +16,14 @@ public:
     QTableWidget* get_table();
 
     void add(QList<double>,QList<double>);
+
+    void makePoint(QKeyEvent*);
+
 private:
     QString _filename;
+    QList<Diagram*> dList;
     QTableWidget* qtw_table;
+    QTabWidget* chart_holder;
     QGraphicsView* qgv_chart;
     Diagram* dia;
 };

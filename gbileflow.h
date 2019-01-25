@@ -26,6 +26,7 @@ public:
     explicit Gbileflow(QWidget *parent = nullptr);
     ///the actual calculation
     void calculate(QTableWidget*);
+    void keyPressEvent(QKeyEvent*);
     ~Gbileflow();
 
 private slots:
@@ -33,18 +34,21 @@ private slots:
     void get_started();
     void closeTab();
     void open();
+    void settings();
     void save();
 
 private:
     Ui::Gbileflow *ui;
     /// TabWidget every file, that get opened, opens one tab
     QTabWidget* qtw_main;
+
     ///all Actions
     QAction *openAction;
     QAction *saveAction;
     QAction *exitAction;
     QAction *cTabAction;
     QAction *startAction;
+    QAction *setAction;
 
     QMenu *fileMenu;
 
@@ -55,4 +59,8 @@ private:
     QList<Model*> mlist;
 };
 
+class Settings : public QMainWindow
+{
+
+};
 #endif // GBILEFLOW_H
