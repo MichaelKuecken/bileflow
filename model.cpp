@@ -167,6 +167,7 @@ void Model::printout_results(const string filename)
    for(int i=0; i<=N; i++)
    {
        if (!(i%printout_every)) file << x[i] << " " << w[i]/e[i] << " " << w[i] << " " << p[i] << " " << c[i] << " " << K[i] << " " << A[i] << " " << e[i] << " " << vilifac[i] <<  " " << w[i]*1e6 <<endl;
+       //x = distance from center p= pressure w=velocity K= resistance A=Membran density e= volume fraction vilifac= vilifactor c=concentration
    }
 
 }
@@ -175,7 +176,8 @@ void Model::printout_results(const string filename)
 void Model::printout_results(QTableWidget* table)
 {
     table->setColumnCount(10);
-
+    table->setHorizontalHeaderLabels(QStringList()<<"distance from center"<<"velocity/volume fraction"<<"velocity"<<"pressure"
+                                     <<"concentration"<<"resistance"<<"Membran density"<<"volume fraction"<<"vilifactor"<<"velocity * 1e6");
     const int printout_every = 1000;
     for(int i=0; i<=N; i++)
     {

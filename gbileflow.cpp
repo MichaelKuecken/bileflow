@@ -177,6 +177,7 @@ void Gbileflow::closeTab()
     }
 }
 
+///if key_up or key_down is pressed
 void Gbileflow::keyPressEvent(QKeyEvent *event)
 {
     if(tlist.length() > 0 && (event->key() == Qt::Key_Up|| event->key() == Qt::Key_Down))

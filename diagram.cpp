@@ -209,7 +209,7 @@ void Diagram::single_point(int add)
         qgsti_text->setScale(0.80);
         QString txt = "(x: " + QString::number(_data1[row]) + "|y: " + QString::number(_data2[row]) + ")";
         qgsti_text->setText(txt);
-        qgsti_text->setPos(getPosX(_data1[row]) - txt.length() * 5, getPosY(_data2[row]) - 20);
+        qgsti_text->setPos(getPosX(_data1[row]) - txt.length() * 6, getPosY(_data2[row]) - 20);
         qgsti_text->setBrush(QBrush(Qt::red));
 
         _scene->addItem(xpoint);
