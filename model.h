@@ -46,7 +46,7 @@ public:
     Model(const string filename);
 
     double g(const int i);
-
+    void setVal(double,double,double,double);
     double single_run(const double cpressure, bool verbose);
     double shooting();
     void printout_results(const string filename);

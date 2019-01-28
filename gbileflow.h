@@ -1,7 +1,7 @@
 #ifndef GBILEFLOW_H
 #define GBILEFLOW_H
 
-#include "model.h"
+#include "settings.h"
 #include "tabcontainer.h"
 #include <QMainWindow>
 #include <QTableWidget>
@@ -11,6 +11,7 @@
 
 namespace Ui {
 class Gbileflow;
+class Settings;
 }
 
 /**
@@ -57,10 +58,5 @@ private:
     QList<bool> calculated_tabs;
     ///stor the calculation-class for every tab
     QList<Model*> mlist;
-};
-
-class Settings : public QMainWindow
-{
-
 };
 #endif // GBILEFLOW_H

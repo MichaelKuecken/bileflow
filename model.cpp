@@ -372,3 +372,11 @@ double Model::shooting()
     return pact;
 
 }
+
+void Model::setVal(double newL, double newTau, double newPc, double newPp)
+{
+    L = newL;
+    tau = newTau;
+    vilifac_pc = newPc;
+    vilifac_pp = newPp;
+}

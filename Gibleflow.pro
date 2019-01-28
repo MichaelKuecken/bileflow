@@ -29,13 +29,15 @@ SOURCES += \
         gbileflow.cpp \
     model.cpp \
     tabcontainer.cpp \
-    diagram.cpp
+    diagram.cpp \
+    settings.cpp
 
 HEADERS += \
         gbileflow.h \
     model.h \
     tabcontainer.h \
-    diagram.h
+    diagram.h \
+    settings.h
 
 FORMS += \
         gbileflow.ui

@@ -230,7 +230,8 @@ void Gbileflow::save()
 
 void Gbileflow::settings()
 {
-    Settings* setval = new Settings();
+    Settings* setval = new Settings(mlist[qtw_main->currentIndex()]);
+
     setval->show();
 }
 
