@@ -15,11 +15,12 @@ public:
 
     QTableWidget* get_table();
 
-    void add(QList<double>,QList<double>);
+    void add(QList<double>,QList<double>, QString);
 
     void makePoint(QKeyEvent*);
 
 private:
+    QWidget* _parent;
     QString _filename;
     QList<Diagram*> dList;
     QTableWidget* qtw_table;

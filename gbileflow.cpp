@@ -71,7 +71,7 @@ void Gbileflow::calculate(QTableWidget* qtw)
     model->printout_results(qtw);
     for(int i = 1; i < 10; ++i)
     {
-        tlist[qtw_main->currentIndex()]->add(makeDataset(0,qtw),makeDataset(i,qtw));
+        tlist[qtw_main->currentIndex()]->add(makeDataset(0,qtw),makeDataset(i,qtw), qtw->horizontalHeaderItem(i)->text());
     }
 }
 
@@ -124,34 +124,48 @@ void Gbileflow::open()
             return;
         }
 
-        //at this point should be a test that change the current widget if the
-        //file is already open
-
-        ///add a new tab to the QTabWidget qtw_main
-        ///and set it as current Index, that will make it easier to
-        ///access it for the rest of the function
-        ///the new tab will be named after the open file
-        qtw_main->setCurrentIndex(qtw_main->addTab(new QWidget(), tmp));
-
-        ///create a new tabcontainer for the new Tab
-        /// !!its important to not set it n the addTab() function since it could not
-        /// access its parentWidget during constructing!!
-        Tabcontainer* tabcon = new Tabcontainer(fileName, qtw_main->currentWidget());
-
-        ///push the new Tabcontainer at the end of tList, where it is easy to access
-        ///with tlist[currentTabIndex]
-        tlist.push_back(tabcon);
-
-        ///create a new Model with the path to the chosen file
-        ///push the new model to the end of mlist to make it easier to access later on
-        mlist.push_back(new Model(fileName.toStdString()));
-
-        ///enable every action that is disabled while there are 0 tabs
-        if(tlist.length() == 1)
+        int already = -1;
+        for(int i = 0; i < qtw_main->count(); ++i)
         {
-            saveAction->setDisabled(false);
-            cTabAction->setDisabled(false);
-            startAction->setDisabled(false);
+            if(qtw_main->tabText(i) == tmp)
+            {
+                already = i;
+            }
+        }
+        if(already == -1){
+            ///add a new tab to the QTabWidget qtw_main
+            ///and set it as current Index, that will make it easier to
+            ///access it for the rest of the function
+            ///the new tab will be named after the open file
+            qtw_main->setCurrentIndex(qtw_main->addTab(new QWidget(), tmp));
+
+            ///create a new tabcontainer for the new Tab
+            /// !!its important to not set it n the addTab() function since it could not
+            /// access its parentWidget during constructing!!
+            Tabcontainer* tabcon = new Tabcontainer(fileName, qtw_main->currentWidget());
+
+            ///push the new Tabcontainer at the end of tList, where it is easy to access
+            ///with tlist[currentTabIndex]
+            tlist.push_back(tabcon);
+
+            ///create a new Model with the path to the chosen file
+            ///push the new model to the end of mlist to make it easier to access later on
+            mlist.push_back(new Model(fileName.toStdString()));
+
+            ///enable every action that is disabled while there are 0 tabs
+            if(tlist.length() == 1)
+            {
+                saveAction->setDisabled(false);
+                cTabAction->setDisabled(false);
+                startAction->setDisabled(false);
+            }
+        }else{
+            qtw_main->removeTab(already);
+            qtw_main->insertTab(already,new QWidget(), tmp);
+            Tabcontainer* tabcon = new Tabcontainer(fileName, qtw_main->widget(already));
+            tlist[already] = tabcon;
+            mlist[already] = new Model(fileName.toStdString());
+            qtw_main->setCurrentIndex(already);
         }
     }
 }
@@ -159,13 +173,14 @@ void Gbileflow::open()
 ///closing a Tab is only possible if any tab is open
 void Gbileflow::closeTab()
 {
+    int  pos = qtw_main->currentIndex();
     ///remove all stored information about the tab
     ///so they will not be accessed by mistake
-    tlist.removeAt(qtw_main->currentIndex());
-    mlist.removeAt(qtw_main->currentIndex());
+    tlist.removeAt(pos);
+    mlist.removeAt(pos);
 
     ///remove the actual tab
-    qtw_main->removeTab(qtw_main->currentIndex());
+    qtw_main->removeTab(pos);
 
     ///disable every Actions, that are not supposed to be
     ///available while no Tab is open, if this tab is the only one
