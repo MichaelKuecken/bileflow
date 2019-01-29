@@ -3,12 +3,17 @@
 
 #include <QtWidgets>
 
+/**
+ * @brief The Diagram class
+ * Responsible for everything that happens in the chart.
+ *
+ */
 class Diagram
 {
 public:
     Diagram();
 
-    void draw(QList<double>, QList<double>, int sizefac = 10);
+    void draw(QList<double>, QList<double>, int sizefac = 10, QString="X", QString="Y");
 
     void set_parent(QWidget*);
 
@@ -48,12 +53,18 @@ private:
 
     QGraphicsLineItem* y_axis;
     QGraphicsLineItem* x_axis;
+
+
     QGraphicsLineItem* ypoint = nullptr;
     QGraphicsLineItem* xpoint = nullptr;
 
+    ///parent object
     QWidget* holder;
+    ///parent of the chartScene
     QGraphicsView* _parent;
+    ///parent of the chartItems
     QGraphicsScene* _scene;
+    ///datasets
     QList<double> _data1;
     QList<double> _data2;
 };

@@ -4,11 +4,13 @@ Settings::Settings(Model* change): QMainWindow (nullptr)
 {
 
     this->setGeometry(this->pos().x(), this->pos().y(),320,440);
+
+    ///Set Inputfield for L
     _setL = new QDoubleSpinBox();
     _setL->setParent(this);
     _setL->setDecimals(5);
     _setL->setSingleStep(0.00005);
-    _setL->setValue(change->L);
+    _setL->setValue(0.0004);
     _setL->setGeometry(120,40,160,40);
     _setL->show();
 
@@ -16,9 +18,10 @@ Settings::Settings(Model* change): QMainWindow (nullptr)
     _LText->setGeometry(40,40,80,40);
     _LText->show();
 
+    ///Set Inputfield for Tau
     _setTau = new QDoubleSpinBox();
     _setTau->setParent(this);
-    _setTau->setValue(change->tau);
+    _setTau->setValue(1.5);
     _setTau->setSingleStep(0.05);
     _setTau->setGeometry(120,120,160,40);
     _setTau->show();
@@ -27,9 +30,10 @@ Settings::Settings(Model* change): QMainWindow (nullptr)
     _TauText->setGeometry(40,120,80,40);
     _TauText->show();
 
+    ///Set Inputfield for vilifac-pc
     _setPc = new QDoubleSpinBox();
     _setPc->setParent(this);
-    _setPc->setValue(change->vilifac_pc);
+    _setPc->setValue(0.3);
     _setPc->setSingleStep(0.05);
     _setPc->setGeometry(120,200,160,40);
     _setPc->show();
@@ -38,10 +42,11 @@ Settings::Settings(Model* change): QMainWindow (nullptr)
     _PcText->setGeometry(40,200,80,40);
     _PcText->show();
 
+    ///Set Inputfield for vilifac-pp
     _setPp = new QDoubleSpinBox();
     _setPp->setParent(this);
-    _setPp->setValue(change->vilifac_pp);
-    _setPp->setMinimum(-5);
+    _setPp->setValue(0.3);
+    _setPp->setMinimum(0);
     _setPp->setSingleStep(0.05);
     _setPp->setGeometry(120,280,160,40);
     _setPp->show();
@@ -65,6 +70,7 @@ Settings::Settings(Model* change): QMainWindow (nullptr)
 
 Settings::~Settings(){}
 
+///apply the values to the Model
 void Settings::apply()
 {
     toChange->setVal(_setL->value(),_setTau->value(),_setPc->value(),_setPp->value());

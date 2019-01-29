@@ -35,6 +35,7 @@ Gbileflow::Gbileflow(QWidget *parent) :
     saveAction->setDisabled(true);
     fileMenu->addAction(cTabAction);
     fileMenu->addAction(setAction);
+    setAction->setDisabled(true);
     cTabAction->setDisabled(true);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAction);
@@ -158,6 +159,7 @@ void Gbileflow::open()
                 saveAction->setDisabled(false);
                 cTabAction->setDisabled(false);
                 startAction->setDisabled(false);
+                setAction->setDisabled(false);
             }
         }else{
             qtw_main->removeTab(already);
@@ -189,6 +191,7 @@ void Gbileflow::closeTab()
         saveAction->setDisabled(true);
         cTabAction->setDisabled(true);
         startAction->setDisabled(true);
+        setAction->setDisabled(true);
     }
 }
 
