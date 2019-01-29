@@ -2,6 +2,7 @@
 #define MODEL_H
 
 #include <QTableWidget>
+#include <QThread>
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -14,18 +15,24 @@ class Model
 {
 public:
     //Nutzer möglichkeit zur manuellen Eingabe geben.
-    const int N = 1000000;
+    //
+    int N = 1000000;
     double L = 4E-4;
     double tau = 1.5; //tortuosity
-    const double outerpressure = 100;
+    //
+    double outerpressure = 100;
     const double R = 8.314; //8.314;
     const double T = 310; // 293;
-    const double kappa = 3E-10;
-    const double k = 1.0;
-    const double secretion_rate = 1.7E-3; // 1.7E-3;
+    //
+    double kappa = 3E-10;
+    //
+    double k = 1.0;
+    //
+    double secretion_rate = 1.7E-3; // 1.7E-3;
     double vilifac_pc = 0.3;
     double vilifac_pp = 0.3;
-    const double central_vein_radius = 20E-6; // given in meter
+    //
+    double central_vein_radius = 20E-6; // given in meter
 
 
 
@@ -46,11 +53,13 @@ public:
     Model(const string filename);
 
     double g(const int i);
-    void setVal(double,double,double,double);
+    void setVal(double,double,double,double,double);
     double single_run(const double cpressure, bool verbose);
     double shooting();
     void printout_results(const string filename);
     void printout_results(QTableWidget*);
+public slots:
+    void run();
 };
 
 

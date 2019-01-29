@@ -3,6 +3,7 @@
 
 #include "model.h"
 #include <QObject>
+#include <QThread>
 #include <QtWidgets>
 
 class Settings : public QMainWindow
@@ -15,18 +16,20 @@ private slots:
     void apply();
 
 private:
-    QDoubleSpinBox* _setL;
-    QDoubleSpinBox* _setTau;
-    QDoubleSpinBox* _setPc;
-    QDoubleSpinBox* _setPp;
+    QDoubleSpinBox* _setN;
+    QDoubleSpinBox* _setOut;
+    QDoubleSpinBox* _setKap;
+    QDoubleSpinBox* _setSR;
+    QDoubleSpinBox* _setCVR;
 
     QPushButton* qpb_exit;
     QPushButton* qpb_apply;
 
-    QLabel* _LText;
-    QLabel* _TauText;
-    QLabel* _PcText;
-    QLabel* _PpText;
+    QLabel* _NText;
+    QLabel* _OutText;
+    QLabel* _KapText;
+    QLabel* _SRText;
+    QLabel* _CVRText;
 
     Model* toChange;
 };

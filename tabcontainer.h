@@ -6,6 +6,7 @@
 #include <QtWidgets>
 #include <QPainterPath>
 
+
 class Tabcontainer
 {
 public:
@@ -20,6 +21,7 @@ public:
     void makePoint(QKeyEvent*);
 
 private:
+
     QWidget* _parent;
     QString _filename;
     QList<Diagram*> dList;

@@ -373,10 +373,16 @@ double Model::shooting()
 
 }
 
-void Model::setVal(double newL, double newTau, double newPc, double newPp)
+void Model::setVal(double newN, double newOut, double newKap, double newSR, double newCVR)
 {
-    L = newL;
-    tau = newTau;
-    vilifac_pc = newPc;
-    vilifac_pp = newPp;
+    N = int(newN);
+    outerpressure = newOut;
+    kappa = newKap;
+    secretion_rate = newSR;
+    central_vein_radius = newCVR;
+}
+
+void Model::run()
+{
+
 }

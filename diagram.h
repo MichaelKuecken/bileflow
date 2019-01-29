@@ -13,7 +13,7 @@ class Diagram
 public:
     Diagram();
 
-    void draw(QList<double>, QList<double>, int sizefac = 10, QString="X", QString="Y");
+    void draw(QList<double>, QList<double>, int sizefac = 10);
 
     void set_parent(QWidget*);
 

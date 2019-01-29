@@ -59,7 +59,7 @@ double Diagram::getPosY(double value)
 }
 
 ///Draw the chart
-void Diagram::draw(QList<double> zahlenx,QList<double> zahleny, int sizeFac, QString textX, QString textY)
+void Diagram::draw(QList<double> zahlenx,QList<double> zahleny, int sizeFac)
 {
     ///save data
     _data1 = zahlenx;

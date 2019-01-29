@@ -8,6 +8,7 @@ Gbileflow::Gbileflow(QWidget *parent) :
 {
     ///GUI setup
     ui->setupUi(this);
+    this->setFixedSize(1000, 600);
     qtw_main = new QTabWidget();
     openAction = new QAction(tr("&Open"), this);
     saveAction = new QAction(tr("&Save"), this);
