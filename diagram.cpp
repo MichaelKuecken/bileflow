@@ -17,7 +17,7 @@ void Diagram::set_parent(QWidget* parent)
 {
     holder = parent;
     _parent->setParent(holder);
-    _parent->setGeometry(holder->geometry());
+    _parent->setGeometry(0,0,671,417);
     _scene->setParent(_parent);
 }
 
@@ -123,9 +123,10 @@ void Diagram::draw(QList<double> zahlenx,QList<double> zahleny, int sizeFac)
         sceneSizeY = edge_top + edge_botom + (frameY*pow(10, -1*facY))*sizeFac;
         sceneSizeX = edge_left + edge_right + (frameX*pow(10, -1*facX))*sizeFac;
 
+        std::cout<<holder->geometry().width()<<"X"<<holder->height()<<std::endl;
         ///if the chart is to small to fill the window make it fit
-        if(sceneSizeY < holder->height() - 25){sceneSizeY = holder->height() - 25;}
-        if(sceneSizeX < holder->width() - 25){sceneSizeX = holder->width() - 25;}
+        if(sceneSizeY < 417 - 25){sceneSizeY = 417 - 25;}
+        if(sceneSizeX < 671 - 25){sceneSizeX = 671 - 25;}
         chartSizeY = sceneSizeY - edge_top - edge_botom;
         chartSizeX = sceneSizeX - edge_left - edge_right;
         _scene->setSceneRect(0,0,sceneSizeX,sceneSizeY);

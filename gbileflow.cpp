@@ -47,6 +47,7 @@ Gbileflow::Gbileflow(QWidget *parent) :
 QList<double> makeDataset(int column, QTableWidget* datagrid)
 {
     QList<double> tmp;
+
     for(int i = 0; i < datagrid->rowCount(); ++i)
     {
         tmp.append(datagrid->item(i,column)->text().toDouble());
@@ -54,26 +55,32 @@ QList<double> makeDataset(int column, QTableWidget* datagrid)
     return tmp;
 }
 
-void Gbileflow::calculate(QTableWidget* qtw)
+void Gbileflow::calculate()
 {
-    const string workdir = "/home/cedric/Documents/Qt_Testfiles/";
+    /*const string workdir = "/home/cedric/Documents/Qt_Testfiles/";
     const string identifier = "6724";
 
     const string inputfile = workdir + "input_" + identifier + ".dat";
-    const string outputfile =  workdir + "output_" + identifier + ".dat";
-
+    const string outputfile =  workdir + "output_" + identifier + ".dat";*/
+    QThread* calc = new QThread(this);
     Model* model = mlist[qtw_main->currentIndex()];
 
-    double pout = model->shooting();
+    qRegisterMetaType<Qt::Orientation>();
+    connect(calc,SIGNAL(started()), model, SLOT(run()));
+    connect(model,SIGNAL(ready()), calc, SLOT(quit()));
+    connect(model,SIGNAL(resultReady(QTableWidget*, Tabcontainer*)), this, SLOT(paint(QTableWidget*, Tabcontainer*)));
+    connect(calc, SIGNAL(finished()), model, SLOT(deleteLater()));
+    model->setTable(tlist[qtw_main->currentIndex()]);
+    model->moveToThread(calc);
+    calc->start();
+}
 
-    model->single_run(pout, true);
-
-    //string filename = "/home/michael/bileflow/real_values/output.dat";
-
-    model->printout_results(qtw);
+void Gbileflow::paint(QTableWidget* qtw, Tabcontainer* tabcon)
+{
     for(int i = 1; i < 10; ++i)
     {
-        tlist[qtw_main->currentIndex()]->add(makeDataset(0,qtw),makeDataset(i,qtw), qtw->horizontalHeaderItem(i)->text());
+       tabcon->add(makeDataset(0,qtw),
+               makeDataset(i,qtw),qtw->horizontalHeaderItem(i)->text());
     }
 }
 
@@ -84,7 +91,7 @@ void  Gbileflow::get_started()
 {
     if(tlist.length() >= 1)
     {
-        calculate(tlist[qtw_main->currentIndex()]->get_table());
+        calculate();
     }
 }
 

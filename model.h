@@ -1,6 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include "tabcontainer.h"
 #include <QTableWidget>
 #include <QThread>
 #include <iostream>
@@ -11,8 +12,9 @@
 #include <sstream>
 using namespace std;
 
-class Model
+class Model : public QObject
 {
+    Q_OBJECT
 public:
     //Nutzer möglichkeit zur manuellen Eingabe geben.
     //
@@ -34,9 +36,6 @@ public:
     //
     double central_vein_radius = 20E-6; // given in meter
 
-
-
-
     vector<double> p;  // pressure
     vector<double> w;  // velocity
     vector<double> K;  // resistance
@@ -47,11 +46,16 @@ public:
     vector<double> vilifac; //vilifactor
     vector<double> c; // concentration
 
+private:
+    QTableWidget* qtw;
+    Tabcontainer* tabcon;
+
 public:
 
     Model();
     Model(const string filename);
 
+    void setTable(Tabcontainer*);
     double g(const int i);
     void setVal(double,double,double,double,double);
     double single_run(const double cpressure, bool verbose);
@@ -60,6 +64,9 @@ public:
     void printout_results(QTableWidget*);
 public slots:
     void run();
+signals:
+    void ready();
+    void resultReady(QTableWidget*, Tabcontainer*);
 };
 
 

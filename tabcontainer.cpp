@@ -71,7 +71,7 @@ void Tabcontainer::add(QList<double>list1, QList<double>list2, QString text)
     }
 
     ///draw chart
-    dList[chart_holder->currentIndex()]->set_parent(chart_holder->currentWidget());
+    dList[chart_holder->currentIndex()]->set_parent(chart_holder->widget(chart_holder->currentIndex()));
     dList[chart_holder->currentIndex()]->draw(list1, list2);
     chart_holder->setCurrentIndex(0);
 }

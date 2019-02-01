@@ -2,7 +2,8 @@
 #define GBILEFLOW_H
 
 #include "settings.h"
-#include "tabcontainer.h"
+
+#include "model.h"
 #include <QMainWindow>
 #include <QTableWidget>
 #include <QPushButton>
@@ -26,12 +27,13 @@ public:
 
     explicit Gbileflow(QWidget *parent = nullptr);
     ///the actual calculation
-    void calculate(QTableWidget*);
+    void calculate();
     void keyPressEvent(QKeyEvent*);
     ~Gbileflow();
 
 private slots:
     ///start calculation
+    void paint(QTableWidget*, Tabcontainer*);
     void get_started();
     void closeTab();
     void open();

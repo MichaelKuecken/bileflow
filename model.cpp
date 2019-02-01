@@ -4,7 +4,6 @@ using namespace std;
 
 Model::Model()
 {
-
     p.resize(N+1);
     w.resize(N+1);
     K.resize(N+1);
@@ -196,6 +195,7 @@ void Model::printout_results(QTableWidget* table)
             table->setItem(table->rowCount() - 1,9,new QTableWidgetItem(QString::number(w[i]*1e6)));
         }
     }
+    std::cout<<table->rowCount()<<std::endl;
 }
 
 double Model::single_run(const double cpressure, bool verbose)
@@ -382,7 +382,21 @@ void Model::setVal(double newN, double newOut, double newKap, double newSR, doub
     central_vein_radius = newCVR;
 }
 
+void Model::setTable(Tabcontainer* tabcon_set)
+{
+    qtw = tabcon_set->get_table();
+    tabcon = tabcon_set;
+}
+
 void Model::run()
 {
+    double pout = shooting();
 
+    single_run(pout, true);
+
+    printout_results(qtw);
+
+    emit resultReady(qtw, tabcon);
+
+    emit ready();
 }
