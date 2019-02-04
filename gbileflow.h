@@ -30,15 +30,19 @@ public:
     void calculate();
     void keyPressEvent(QKeyEvent*);
     ~Gbileflow();
+signals:
+    void itsTime2stop();
 
 private slots:
     ///start calculation
     void paint(QTableWidget*, Tabcontainer*);
     void get_started();
     void closeTab();
-    void open();
+    void open(QString dat = "");
     void settings();
     void save();
+    void breakThread(QThread*);
+    void takeSets(QList<double>);
 
 private:
     Ui::Gbileflow *ui;
@@ -57,8 +61,9 @@ private:
 
     ///store the sub-GUI for every tab
     QList<Tabcontainer*> tlist;
-    QList<bool> calculated_tabs;
+    //QList<bool> calculated_tabs;
     ///stor the calculation-class for every tab
     QList<Model*> mlist;
+    QList<QList<double>> slist;
 };
 #endif // GBILEFLOW_H

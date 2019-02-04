@@ -12,6 +12,30 @@
 #include <sstream>
 using namespace std;
 
+class Timeout : public QThread
+{
+    Q_OBJECT
+public:
+    Timeout(QThread* ctrl)
+    {
+        control = ctrl;
+    }
+public slots:
+    void test()
+    {
+        this->sleep(5);
+        if(control->isRunning())
+        {
+            emit miss(control);
+        }
+        this->quit();
+    }
+signals:
+    void miss(QThread*);
+private:
+    QThread* control;
+};
+
 class Model : public QObject
 {
     Q_OBJECT
@@ -54,10 +78,9 @@ public:
 
     Model();
     Model(const string filename);
-
     void setTable(Tabcontainer*);
     double g(const int i);
-    void setVal(double,double,double,double,double);
+    void setVal(QList<double>);
     double single_run(const double cpressure, bool verbose);
     double shooting();
     void printout_results(const string filename);

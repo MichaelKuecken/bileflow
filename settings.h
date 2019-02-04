@@ -10,11 +10,15 @@ class Settings : public QMainWindow
 {
     Q_OBJECT
 public:
-    Settings(Model*);
+    Settings(QList<double>, QMainWindow*);
     ~Settings();
+
 private slots:
     void apply();
+    void reopen();
 
+signals:
+    void getSets(QList<double>);
 private:
     QDoubleSpinBox* _setN;
     QDoubleSpinBox* _setOut;
@@ -31,7 +35,8 @@ private:
     QLabel* _SRText;
     QLabel* _CVRText;
 
-    Model* toChange;
+    QList<double> tmp = {};
+    QMainWindow* _parent;
 };
 
 #endif // SETTINGS_H

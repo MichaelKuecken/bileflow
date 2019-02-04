@@ -1,16 +1,16 @@
 #include "settings.h"
 
-Settings::Settings(Model* change): QMainWindow (nullptr)
+Settings::Settings(QList<double> change, QMainWindow* parent): QMainWindow (nullptr)
 {
     this->setFixedSize(400, 520);
-
+    _parent = parent;
     ///Set Inputfield for N
     _setN = new QDoubleSpinBox();
     _setN->setParent(this);
     _setN->setDecimals(0);
     _setN->setMaximum(10000000);
     _setN->setSingleStep(10000);
-    _setN->setValue(change->N);
+    _setN->setValue(change[0]);
     _setN->setGeometry(200,40,160,40);
     _setN->show();
 
@@ -22,7 +22,7 @@ Settings::Settings(Model* change): QMainWindow (nullptr)
     _setOut = new QDoubleSpinBox();
     _setOut->setParent(this);
     _setOut->setMaximum(1000);
-    _setOut->setValue(change->outerpressure);
+    _setOut->setValue(change[1]);
     _setOut->setSingleStep(10);
     _setOut->setGeometry(200,120,160,40);
     _setOut->show();
@@ -35,7 +35,7 @@ Settings::Settings(Model* change): QMainWindow (nullptr)
     _setKap = new QDoubleSpinBox();
     _setKap->setParent(this);
     _setKap->setDecimals(10);
-    _setKap->setValue(change->kappa);
+    _setKap->setValue(change[2]);
     _setKap->setSingleStep(0.0000000001);
     _setKap->setGeometry(200,200,160,40);
     _setKap->show();
@@ -48,7 +48,7 @@ Settings::Settings(Model* change): QMainWindow (nullptr)
     _setSR = new QDoubleSpinBox();
     _setSR->setParent(this);
     _setSR->setDecimals(4);
-    _setSR->setValue(change->secretion_rate);
+    _setSR->setValue(change[3]);
     _setSR->setSingleStep(0.0001);
     _setSR->setGeometry(200,280,160,40);
     _setSR->show();
@@ -61,7 +61,7 @@ Settings::Settings(Model* change): QMainWindow (nullptr)
     _setCVR = new QDoubleSpinBox();
     _setCVR->setParent(this);
     _setCVR->setDecimals(6);
-    _setCVR->setValue(change->central_vein_radius);
+    _setCVR->setValue(change[4]);
     _setCVR->setSingleStep(0.000001);
     _setCVR->setGeometry(200,360,160,40);
     _setCVR->show();
@@ -78,9 +78,9 @@ Settings::Settings(Model* change): QMainWindow (nullptr)
     qpb_exit->setGeometry(40,440,80,40);
     qpb_exit->show();
 
-    toChange = change;
     QObject::connect(qpb_exit,SIGNAL(pressed()),this,SLOT(close()));
     QObject::connect(qpb_apply,SIGNAL(pressed()),this,SLOT(apply()));
+    QObject::connect(qpb_exit,SIGNAL(pressed()), this, SLOT(reopen()));
 }
 
 Settings::~Settings(){}
@@ -88,6 +88,19 @@ Settings::~Settings(){}
 ///apply the values to the Model
 void Settings::apply()
 {
-    toChange->setVal(_setN->value(),_setOut->value(),_setKap->value(),_setSR->value(), _setCVR->value());
+    tmp = {_setN->value(),_setOut->value(),_setKap->value(),_setSR->value(), _setCVR->value()};
+
+    if(tmp.size() == 0)
+    {
+        emit getSets({1000000,100,3E-10,1.7E-3,20E-6});
+    }else{
+        emit getSets(tmp);
+    }
+    reopen();
     this->close();
+}
+
+void Settings::reopen()
+{
+    _parent->setDisabled(false);
 }

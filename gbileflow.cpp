@@ -63,16 +63,36 @@ void Gbileflow::calculate()
     const string inputfile = workdir + "input_" + identifier + ".dat";
     const string outputfile =  workdir + "output_" + identifier + ".dat";*/
     QThread* calc = new QThread(this);
+    QThread* control = new Timeout(calc);
     Model* model = mlist[qtw_main->currentIndex()];
-
+    model->setVal(slist[qtw_main->currentIndex()]);
     qRegisterMetaType<Qt::Orientation>();
     connect(calc,SIGNAL(started()), model, SLOT(run()));
     connect(model,SIGNAL(ready()), calc, SLOT(quit()));
+    connect(model,SIGNAL(ready()), control, SLOT(quit()));
+    connect(this,SIGNAL(itsTime2stop()), calc, SLOT(quit()));
     connect(model,SIGNAL(resultReady(QTableWidget*, Tabcontainer*)), this, SLOT(paint(QTableWidget*, Tabcontainer*)));
-    connect(calc, SIGNAL(finished()), model, SLOT(deleteLater()));
+    connect(control, SIGNAL(miss(QThread*)), this, SLOT(breakThread(QThread*)));
+    connect(control, SIGNAL(started()), control, SLOT(test()));
+
     model->setTable(tlist[qtw_main->currentIndex()]);
-    model->moveToThread(calc);
+
+    //model->run();
+
+    if(model->thread() == this->thread())
+    {
+        model->moveToThread(calc);
+        control->moveToThread(control);
+    }
     calc->start();
+    control->start();
+}
+
+void Gbileflow::breakThread(QThread* toBreak)
+{
+    emit itsTime2stop();
+    QErrorMessage* errm = new QErrorMessage();
+    errm->showMessage("Timeout");
 }
 
 void Gbileflow::paint(QTableWidget* qtw, Tabcontainer* tabcon)
@@ -91,17 +111,25 @@ void  Gbileflow::get_started()
 {
     if(tlist.length() >= 1)
     {
+        open(tlist[qtw_main->currentIndex()]->get_file());
         calculate();
     }
 }
 
 //commeted
-void Gbileflow::open()
+void Gbileflow::open(QString dat)
 {
     ///Open up a file dialoge
     ///it can only find .dat files as datasource
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "",
-    tr("Text Files (*.dat)"));
+    QString fileName;
+    if(dat == "")
+    {
+        fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "",
+        tr("Text Files (*.dat)"));
+    }
+    else {
+        fileName = dat;
+    }
 
     ///the tmp QString will store the file name during this function
     QString tmp = "";
@@ -160,7 +188,7 @@ void Gbileflow::open()
             ///create a new Model with the path to the chosen file
             ///push the new model to the end of mlist to make it easier to access later on
             mlist.push_back(new Model(fileName.toStdString()));
-
+            slist.push_back({1000000,100,3E-10,1.7E-3,20E-6});
             ///enable every action that is disabled while there are 0 tabs
             if(tlist.length() == 1)
             {
@@ -175,6 +203,7 @@ void Gbileflow::open()
             Tabcontainer* tabcon = new Tabcontainer(fileName, qtw_main->widget(already));
             tlist[already] = tabcon;
             mlist[already] = new Model(fileName.toStdString());
+            //slist[already] = {1000000,100,3E-10,1.7E-3,20E-6};
             qtw_main->setCurrentIndex(already);
         }
     }
@@ -188,7 +217,7 @@ void Gbileflow::closeTab()
     ///so they will not be accessed by mistake
     tlist.removeAt(pos);
     mlist.removeAt(pos);
-
+    slist.removeAt(pos);
     ///remove the actual tab
     qtw_main->removeTab(pos);
 
@@ -241,9 +270,15 @@ void Gbileflow::save()
 
 void Gbileflow::settings()
 {
-    Settings* setval = new Settings(mlist[qtw_main->currentIndex()]);
-
+    this->setDisabled(true);
+    Settings* setval = new Settings(slist[qtw_main->currentIndex()],this);
+    connect(setval, SIGNAL(getSets(QList<double>)), this, SLOT(takeSets(QList<double>)));
     setval->show();
+}
+
+void Gbileflow::takeSets(QList<double> tmp)
+{
+    slist[qtw_main->currentIndex()] = tmp;
 }
 
 Gbileflow::~Gbileflow()

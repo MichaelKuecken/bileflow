@@ -1,4 +1,4 @@
-#include "model.h"
+﻿#include "model.h"
 
 using namespace std;
 
@@ -373,13 +373,13 @@ double Model::shooting()
 
 }
 
-void Model::setVal(double newN, double newOut, double newKap, double newSR, double newCVR)
+void Model::setVal(QList<double> nval)
 {
-    N = int(newN);
-    outerpressure = newOut;
-    kappa = newKap;
-    secretion_rate = newSR;
-    central_vein_radius = newCVR;
+    N = int(nval[0]);
+    outerpressure = nval[1];
+    kappa = nval[2];
+    secretion_rate = nval[3];
+    central_vein_radius = nval[4];
 }
 
 void Model::setTable(Tabcontainer* tabcon_set)
