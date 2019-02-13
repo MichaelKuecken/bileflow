@@ -269,8 +269,11 @@ void Gbileflow::save(){
             QDir(fileName).removeRecursively();
             QDir().mkdir(fileName);
         }
-        mlist[qtw_main->currentIndex()]->printout_results((fileName+"/").toStdString(), qtw_main->tabText(qtw_main->currentIndex()).toStdString()+".dat");
-        tlist[qtw_main->currentIndex()]->mkPng(fileName+"/");
+        mlist[qtw_main->currentIndex()]->printout_results((fileName+"/").toStdString(), "table_" + qtw_main->tabText(qtw_main->currentIndex()).toStdString());
+        QFile file(tlist[qtw_main->currentIndex()]->get_file());
+        file.copy(fileName+"/origin.dat");
+        QDir(fileName).mkdir("pictures");
+        tlist[qtw_main->currentIndex()]->mkPng(fileName+"/pictures"+"/");
     }
 }
 
@@ -286,9 +289,12 @@ void Gbileflow::saveAs()
         /// currently only testing for ""
         if (fileName != "") {
             QDir().mkdir(fileName);
+            QDir(fileName).mkdir("pictures");
             //QFile file(fileName);
-            mlist[qtw_main->currentIndex()]->printout_results((fileName+"/").toStdString(),qtw_main->tabText(qtw_main->currentIndex()).toStdString()+".dat");
-            tlist[qtw_main->currentIndex()]->mkPng(fileName+"/");
+            QFile file(tlist[qtw_main->currentIndex()]->get_file());
+            file.copy(fileName+"/origin.dat");
+            mlist[qtw_main->currentIndex()]->printout_results((fileName+"/").toStdString(),"table_" + qtw_main->tabText(qtw_main->currentIndex()).toStdString());
+            tlist[qtw_main->currentIndex()]->mkPng(fileName+"/pictures"+"/");
             tlist[qtw_main->currentIndex()]->set_savePlace(fileName);
 
         }
