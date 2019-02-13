@@ -5,7 +5,7 @@ Tabcontainer::Tabcontainer(QString filename, QWidget* parent)
 {
     _filename = filename;
     qtw_table = new QTableWidget();
-
+    saveplace = "";
     chart_holder = new QTabWidget();
     chart_holder->setGeometry(25, 25, 675, 450);
     chart_holder->setParent(parent);
@@ -49,14 +49,17 @@ void Tabcontainer::makePoint(QKeyEvent* e)
 void Tabcontainer::add(QList<double>list1, QList<double>list2, QString text)
 {
     ///test if the chart is already open
+    std::cout<<text.toStdString()<<std::endl;
     int already = -1;
     for(int i = 0; i < chart_holder->count(); ++i)
     {
+        std::cout<<"    " + chart_holder->tabText(i).toStdString()<<std::endl;
         if(chart_holder->tabText(i) == text)
         {
             already = i;
         }
     }
+    std::cout<<already<<std::endl;
     ///if not add a new Diagram
     if(already == -1){
         chart_holder->setCurrentIndex(chart_holder->addTab(new QWidget(), text));
@@ -64,12 +67,11 @@ void Tabcontainer::add(QList<double>list1, QList<double>list2, QString text)
 
     ///else go to the Diagram and update it
     }else{
-        delete chart_holder->widget(already);
-        chart_holder->removeTab(already);
-        chart_holder->insertTab(already,new QWidget(), text);
+        //delete chart_holder->widget(already);
+        //chart_holder->removeTab(already);
+        //chart_holder->insertTab(already,new QWidget(), text);
         chart_holder->setCurrentIndex(already);
-        delete dList[already];
-        dList[already] = new Diagram();
+        dList.replace(already, new Diagram());
     }
 
     ///draw chart

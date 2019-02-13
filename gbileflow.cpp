@@ -12,6 +12,7 @@ Gbileflow::Gbileflow(QWidget *parent) :
     qtw_main = new QTabWidget();
     openAction = new QAction(tr("&Open"), this);
     saveAction = new QAction(tr("&Save"), this);
+    saveAsAction = new QAction(tr("&Save as..."), this);
     exitAction = new QAction(tr("E&xit"), this);
     startAction = new QAction(tr("&Start"), this);
     cTabAction = new QAction(tr("&Close Tab"), this);
@@ -24,6 +25,7 @@ Gbileflow::Gbileflow(QWidget *parent) :
     ///connect signals and slots
     connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
     connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
+    connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
     connect(exitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(cTabAction, SIGNAL(triggered()), this, SLOT(closeTab()));
     connect(startAction, SIGNAL(triggered()), this, SLOT(get_started()));
@@ -33,6 +35,8 @@ Gbileflow::Gbileflow(QWidget *parent) :
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(openAction);
     fileMenu->addAction(saveAction);
+    fileMenu->addAction(saveAsAction);
+    saveAsAction->setDisabled(true);
     saveAction->setDisabled(true);
     fileMenu->addAction(cTabAction);
     fileMenu->addAction(setAction);
@@ -111,7 +115,7 @@ void  Gbileflow::get_started()
 {
     if(tlist.length() >= 1)
     {
-        open(tlist[qtw_main->currentIndex()]->get_file());
+        mlist.replace(qtw_main->currentIndex(), new Model(tlist[qtw_main->currentIndex()]->get_file().toStdString()));
         calculate();
     }
 }
@@ -195,6 +199,7 @@ void Gbileflow::open(QString dat)
                 saveAction->setDisabled(false);
                 cTabAction->setDisabled(false);
                 startAction->setDisabled(false);
+                saveAsAction->setDisabled(false);
                 setAction->setDisabled(false);
             }
         }else{
@@ -230,6 +235,7 @@ void Gbileflow::closeTab()
     if(tlist.length() <= 0)
     {
         saveAction->setDisabled(true);
+        saveAction->setDisabled(true);
         cTabAction->setDisabled(true);
         startAction->setDisabled(true);
         setAction->setDisabled(true);
@@ -245,12 +251,34 @@ void Gbileflow::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void Gbileflow::save()
+void Gbileflow::save(){
+    QString fileName = "";
+    std::cout<<tlist[qtw_main->currentIndex()]->get_savePlace().toStdString()<<std::endl;
+    if(tlist[qtw_main->currentIndex()]->get_savePlace() == ""){
+        fileName  = QFileDialog::getExistingDirectory(this, tr("Open Directory"),"/home",QFileDialog::ShowDirsOnly| QFileDialog::DontResolveSymlinks);
+        std::cout<<fileName.toStdString()<<std::endl;
+        tlist[qtw_main->currentIndex()]->set_savePlace(fileName);
+    }else{
+        fileName = tlist[qtw_main->currentIndex()]->get_savePlace();
+    }
+    if(fileName != ""){
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Clear", "Clear content of " + fileName + "?",
+                                        QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            QDir(fileName).removeRecursively();
+            QDir().mkdir(fileName);
+        }
+        mlist[qtw_main->currentIndex()]->printout_results((fileName+"/").toStdString(), qtw_main->tabText(qtw_main->currentIndex()).toStdString()+".dat");
+        tlist[qtw_main->currentIndex()]->mkPng(fileName+"/");
+    }
+}
+
+void Gbileflow::saveAs()
 {
     //maybe not neccessary since it is only available if there is a tab open
     if(tlist.length() >= 1)
     {
-        ///create a .dat file
         QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "",
         tr("Text Files"));
 
@@ -259,8 +287,9 @@ void Gbileflow::save()
         if (fileName != "") {
             QDir().mkdir(fileName);
             //QFile file(fileName);
-            mlist[qtw_main->currentIndex()]->printout_results((fileName+"/").toStdString(),"test.dat");
+            mlist[qtw_main->currentIndex()]->printout_results((fileName+"/").toStdString(),qtw_main->tabText(qtw_main->currentIndex()).toStdString()+".dat");
             tlist[qtw_main->currentIndex()]->mkPng(fileName+"/");
+            tlist[qtw_main->currentIndex()]->set_savePlace(fileName);
 
         }
     }

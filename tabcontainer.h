@@ -24,10 +24,15 @@ public:
 
     void mkPng(QString);
 
+    QString get_savePlace(){return saveplace;}
+
+    void set_savePlace(QString place){saveplace = place;}
+
 private:
 
     QWidget* _parent;
     QString _filename;
+    QString saveplace;
     QList<Diagram*> dList;
     QTableWidget* qtw_table;
     QTabWidget* chart_holder;

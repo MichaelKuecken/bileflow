@@ -41,6 +41,7 @@ public slots:
     void open(QString dat = "");
     void settings();
     void save();
+    void saveAs();
     void breakThread(QThread*);
     void takeSets(QList<double>);
     void delsets(Settings*);
@@ -53,6 +54,7 @@ private:
     ///all Actions
     QAction *openAction;
     QAction *saveAction;
+    QAction *saveAsAction;
     QAction *exitAction;
     QAction *cTabAction;
     QAction *startAction;
