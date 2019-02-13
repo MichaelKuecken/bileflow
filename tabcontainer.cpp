@@ -64,9 +64,11 @@ void Tabcontainer::add(QList<double>list1, QList<double>list2, QString text)
 
     ///else go to the Diagram and update it
     }else{
+        delete chart_holder->widget(already);
         chart_holder->removeTab(already);
         chart_holder->insertTab(already,new QWidget(), text);
         chart_holder->setCurrentIndex(already);
+        delete dList[already];
         dList[already] = new Diagram();
     }
 
@@ -74,4 +76,33 @@ void Tabcontainer::add(QList<double>list1, QList<double>list2, QString text)
     dList[chart_holder->currentIndex()]->set_parent(chart_holder->widget(chart_holder->currentIndex()));
     dList[chart_holder->currentIndex()]->draw(list1, list2);
     chart_holder->setCurrentIndex(0);
+}
+
+Tabcontainer::~Tabcontainer(){
+    for(auto &elem : dList){
+        delete elem;
+    }
+}
+
+void Tabcontainer::mkPng(QString directory){
+    for(int i=0; i< dList.length(); ++i){
+        QString text = chart_holder->tabText(i) + ".png";
+        for(auto &elem : text){
+            if(elem == ' '){
+                elem = '_';
+            }else if(elem == '/'){
+                elem = '|';
+            }
+        }
+        std::cout<<(text).toStdString()<<std::endl;
+        dList[i]->get_scene()->clearSelection();
+        dList[i]->get_scene()->setSceneRect(dList[i]->get_scene()->itemsBoundingRect());
+
+        QImage image(dList[i]->get_scene()->sceneRect().size().toSize(), QImage::Format_ARGB32);
+        image.fill(Qt::white);
+
+        QPainter painter(&image);
+        dList[i]->get_scene()->render(&painter);
+        image.save(directory + text);
+    }
 }

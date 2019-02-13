@@ -4,6 +4,7 @@ using namespace std;
 
 Model::Model()
 {
+    std::cout<<"erschaffe Model(0)"<<std::endl;
     p.resize(N+1);
     w.resize(N+1);
     K.resize(N+1);
@@ -25,6 +26,7 @@ Model::Model()
 
 Model::Model(const string filename)
 {
+    std::cout<<"erschaffe Model(1)"<<std::endl;
     p.resize(N+1);
     w.resize(N+1);
     K.resize(N+1);
@@ -158,9 +160,10 @@ void output_vector(const vector<double> & v)
 } */
 
 //printout in file
-void Model::printout_results(const string filename)
+void Model::printout_results(const string dirname, const string filename)
 {
-   ofstream file(filename.c_str());
+
+   ofstream file((dirname + filename).c_str());
    const int printout_every = 1000;
 
    for(int i=0; i<=N; i++)
@@ -320,7 +323,7 @@ double Model::single_run(const double cpressure, bool verbose)
    }
 
 
-  printout_results("/home/cedric/Documents/Qt_Testfiles/track.dat");
+  printout_results("/home/cedric/Documents/Qt_Testfiles/","track.dat");
   return p[N];
 
 }

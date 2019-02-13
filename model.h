@@ -78,12 +78,13 @@ public:
 
     Model();
     Model(const string filename);
+    ~Model(){std::cout<<"loesche Model"<<std::endl;}
     void setTable(Tabcontainer*);
     double g(const int i);
     void setVal(QList<double>);
     double single_run(const double cpressure, bool verbose);
     double shooting();
-    void printout_results(const string filename);
+    void printout_results(const string, const string filename);
     void printout_results(QTableWidget*);
 public slots:
     void run();

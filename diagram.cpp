@@ -123,7 +123,6 @@ void Diagram::draw(QList<double> zahlenx,QList<double> zahleny, int sizeFac)
         sceneSizeY = edge_top + edge_botom + (frameY*pow(10, -1*facY))*sizeFac;
         sceneSizeX = edge_left + edge_right + (frameX*pow(10, -1*facX))*sizeFac;
 
-        std::cout<<holder->geometry().width()<<"X"<<holder->height()<<std::endl;
         ///if the chart is to small to fill the window make it fit
         if(sceneSizeY < 417 - 25){sceneSizeY = 417 - 25;}
         if(sceneSizeX < 671 - 25){sceneSizeX = 671 - 25;}
@@ -226,6 +225,7 @@ void Diagram::single_point(int add)
         _scene->removeItem(ypoint);
         xpoint = nullptr;
         ypoint = nullptr;
+        delete qgsti_text;
     }
     if(row >= 0 && row < _data1.length())
     {
@@ -237,7 +237,7 @@ void Diagram::single_point(int add)
         xpoint->setPen(QPen(Qt::red, 1));
 
         ///Set Text
-        QGraphicsSimpleTextItem* qgsti_text = new QGraphicsSimpleTextItem(QString(), xpoint);
+        qgsti_text = new QGraphicsSimpleTextItem(QString(), xpoint);
         qgsti_text->setScale(0.80);
         QString txt = "(" + QString::number(_data1[row]) + "|" + QString::number(_data2[row]) + ")";
         qgsti_text->setText(txt);
@@ -255,4 +255,8 @@ void Diagram::single_point(int add)
     }else{
         row = _data1.length();
     }
+}
+
+Diagram::~Diagram(){
+    std::cout<<"correctly deleted!"<<std::endl;
 }

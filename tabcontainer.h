@@ -12,6 +12,8 @@ class Tabcontainer
 public:
     Tabcontainer(QString, QWidget*);
 
+    ~Tabcontainer();
+
     QString get_file();
 
     QTableWidget* get_table();
@@ -19,6 +21,8 @@ public:
     void add(QList<double>,QList<double>, QString);
 
     void makePoint(QKeyEvent*);
+
+    void mkPng(QString);
 
 private:
 

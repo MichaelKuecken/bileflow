@@ -2,14 +2,16 @@
 #define DIAGRAM_H
 
 #include <QtWidgets>
+#include <iostream>
 
 /**
  * @brief The Diagram class
  * Responsible for everything that happens in the chart.
  *
  */
-class Diagram
+class Diagram : public QWidget
 {
+    Q_OBJECT
 public:
     Diagram();
 
@@ -22,6 +24,10 @@ public:
     double getPosY(double);
 
     void single_point(int);
+
+    QGraphicsScene* get_scene(){return _scene;}
+
+    ~Diagram();
 
 private:
 
@@ -54,7 +60,6 @@ private:
     QGraphicsLineItem* y_axis;
     QGraphicsLineItem* x_axis;
 
-
     QGraphicsLineItem* ypoint = nullptr;
     QGraphicsLineItem* xpoint = nullptr;
 
@@ -67,6 +72,7 @@ private:
     ///datasets
     QList<double> _data1;
     QList<double> _data2;
+    QGraphicsSimpleTextItem* qgsti_text;
 };
 
 

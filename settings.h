@@ -19,6 +19,7 @@ private slots:
 
 signals:
     void getSets(QList<double>);
+    void delMe(Settings*);
 private:
     QDoubleSpinBox* _setN;
     QDoubleSpinBox* _setOut;

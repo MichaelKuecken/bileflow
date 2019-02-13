@@ -202,7 +202,9 @@ void Gbileflow::open(QString dat)
             qtw_main->insertTab(already,new QWidget(), tmp);
             Tabcontainer* tabcon = new Tabcontainer(fileName, qtw_main->widget(already));
             tlist[already] = tabcon;
+            Model* tmp = mlist[already];
             mlist[already] = new Model(fileName.toStdString());
+            delete tmp;
             //slist[already] = {1000000,100,3E-10,1.7E-3,20E-6};
             qtw_main->setCurrentIndex(already);
         }
@@ -215,7 +217,9 @@ void Gbileflow::closeTab()
     int  pos = qtw_main->currentIndex();
     ///remove all stored information about the tab
     ///so they will not be accessed by mistake
+    delete tlist[pos];
     tlist.removeAt(pos);
+    delete mlist[pos];
     mlist.removeAt(pos);
     slist.removeAt(pos);
     ///remove the actual tab
@@ -248,22 +252,16 @@ void Gbileflow::save()
     {
         ///create a .dat file
         QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "",
-        tr("Text Files (*.dat)"));
+        tr("Text Files"));
 
         ///check if the name is invalide
         /// currently only testing for ""
         if (fileName != "") {
-            QFile file(fileName);
-            ///if it is not possible to write in this file
-            ///because it is not WriteOnly throw an errormessage
-            if (!file.open(QIODevice::WriteOnly)) {
-                // error message
-            } else {
-                ///Write all information in a file
-                ///and close the file
-                mlist[qtw_main->currentIndex()]->printout_results(fileName.toStdString() + ".dat");
-                file.close();
-            }
+            QDir().mkdir(fileName);
+            //QFile file(fileName);
+            mlist[qtw_main->currentIndex()]->printout_results((fileName+"/").toStdString(),"test.dat");
+            tlist[qtw_main->currentIndex()]->mkPng(fileName+"/");
+
         }
     }
 }
@@ -284,4 +282,8 @@ void Gbileflow::takeSets(QList<double> tmp)
 Gbileflow::~Gbileflow()
 {
     delete ui;
+}
+
+void Gbileflow::delsets(Settings* set){
+    delete set;
 }

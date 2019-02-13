@@ -33,7 +33,7 @@ public:
 signals:
     void itsTime2stop();
 
-private slots:
+public slots:
     ///start calculation
     void paint(QTableWidget*, Tabcontainer*);
     void get_started();
@@ -43,6 +43,7 @@ private slots:
     void save();
     void breakThread(QThread*);
     void takeSets(QList<double>);
+    void delsets(Settings*);
 
 private:
     Ui::Gbileflow *ui;

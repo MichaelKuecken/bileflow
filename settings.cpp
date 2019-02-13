@@ -81,9 +81,10 @@ Settings::Settings(QList<double> change, QMainWindow* parent): QMainWindow (null
     QObject::connect(qpb_exit,SIGNAL(pressed()),this,SLOT(close()));
     QObject::connect(qpb_apply,SIGNAL(pressed()),this,SLOT(apply()));
     QObject::connect(qpb_exit,SIGNAL(pressed()), this, SLOT(reopen()));
+    QObject::connect(this, SIGNAL(delMe(Settings*)), parent, SLOT(delsets(Settings*)));
 }
 
-Settings::~Settings(){}
+Settings::~Settings(){std::cout<<"del sets"<<std::endl;}
 
 ///apply the values to the Model
 void Settings::apply()
@@ -97,10 +98,11 @@ void Settings::apply()
         emit getSets(tmp);
     }
     reopen();
-    this->close();
 }
 
 void Settings::reopen()
 {
+    this->close();
     _parent->setDisabled(false);
+    emit delMe(this);
 }
