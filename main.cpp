@@ -86,6 +86,7 @@ Model::Model(const string filename)
     ifstream input(filename.c_str());
     int rows = 0;
 
+  //  cout << filename << endl;
     for(;;)
     {
        string line;
@@ -132,6 +133,7 @@ Model::Model(const string filename)
 
     cout << vilifac_pc << " " << vilifac_pp << endl;
 
+
   //  int tt; cin >> tt;
 
     rows -= 2;
@@ -167,10 +169,12 @@ Model::Model(const string filename)
 
         A[i] = Ap[Mlow]*(1-interx) + Ap[Mlow+1]*interx;
         K[i] = (Kp[Mlow]*(1-interx) + Kp[Mlow+1]*interx)/vilifac[i]/vilifac[i]*k;
-        e[i] = ep[Mlow]*(1-interx) + ep[Mlow+1]*interx*vilifac[i];
+        e[i] = (ep[Mlow]*(1-interx) + ep[Mlow+1]*interx)*vilifac[i];
 
 
     }
+
+  //  int tt; cin >> tt;
 
  /*   for(int i=0; i<=N; i++)
     {
@@ -394,8 +398,8 @@ double Model::shooting()
 
 int main()
 {
-    const string workdir = "/home/michael/bileflow/stea_individual_jan18/";
-    const string identifier = "6718";
+    const string workdir = "/home/michael/bileflow1/nash_individual_jan18/";
+    const string identifier = "6921";
 
     const string inputfile = workdir + "input_" + identifier + ".dat";
     const string outputfile =  workdir + "output_" + identifier + ".dat";
