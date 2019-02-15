@@ -1,60 +1,10 @@
-#include "gbileflow.h"
-#include <QApplication>
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <string>
-#include <fstream>
-#include <sstream>
+﻿#include "model.h"
 
-<<<<<<< HEAD
 using namespace std;
-
-class Model
-{
-
-    const int N = 1000000;
-    double L = 4E-4;
-    double tau = 1.5; //tortuosity
-    const double outerpressure = 100;
-    const double R = 8.314; //8.314;
-    const double T = 310; // 293;
-    const double kappa = 3E-10;
-    const double k = 1.0;
-    const double secretion_rate = 1.7E-3; // 1.7E-3;
-    double vilifac_pc = 0.3;
-    double vilifac_pp = 0.3;
-    const double central_vein_radius = 20E-6; // given in meter
-
-
-
-
-    vector<double> p;  // pressure
-    vector<double> w;  // velocity
-    vector<double> K;  // resistance
-    vector<double> A;  // membrane density
-    vector<double> e;  // volume fraction
-    vector<double> G;
-    vector<double> x;  // distance from center
-    vector<double> vilifac; //vilifactor
-    vector<double> c; // concentration
-
-public:
-
-    Model();
-    Model(const string filename);
-
-    double g(const int i);
-
-    double single_run(const double cpressure, bool verbose);
-    double shooting();
-    void printout_results(const string filename);
-
-};
 
 Model::Model()
 {
-
+    std::cout<<"erschaffe Model(0)"<<std::endl;
     p.resize(N+1);
     w.resize(N+1);
     K.resize(N+1);
@@ -76,6 +26,7 @@ Model::Model()
 
 Model::Model(const string filename)
 {
+    std::cout<<"erschaffe Model(1)"<<std::endl;
     p.resize(N+1);
     w.resize(N+1);
     K.resize(N+1);
@@ -89,7 +40,6 @@ Model::Model(const string filename)
     ifstream input(filename.c_str());
     int rows = 0;
 
-  //  cout << filename << endl;
     for(;;)
     {
        string line;
@@ -136,7 +86,6 @@ Model::Model(const string filename)
 
     cout << vilifac_pc << " " << vilifac_pp << endl;
 
-
   //  int tt; cin >> tt;
 
     rows -= 2;
@@ -172,12 +121,10 @@ Model::Model(const string filename)
 
         A[i] = Ap[Mlow]*(1-interx) + Ap[Mlow+1]*interx;
         K[i] = (Kp[Mlow]*(1-interx) + Kp[Mlow+1]*interx)/vilifac[i]/vilifac[i]*k;
-        e[i] = (ep[Mlow]*(1-interx) + ep[Mlow+1]*interx)*vilifac[i];
+        e[i] = ep[Mlow]*(1-interx) + ep[Mlow+1]*interx*vilifac[i];
 
 
     }
-
-  //  int tt; cin >> tt;
 
  /*   for(int i=0; i<=N; i++)
     {
@@ -212,16 +159,46 @@ void output_vector(const vector<double> & v)
     }
 } */
 
-void Model::printout_results(const string filename)
+//printout in file
+void Model::printout_results(const string dirname, const string filename)
 {
-   ofstream file(filename.c_str());
+
+   ofstream file((dirname + filename).c_str());
    const int printout_every = 1000;
 
    for(int i=0; i<=N; i++)
    {
        if (!(i%printout_every)) file << x[i] << " " << w[i]/e[i] << " " << w[i] << " " << p[i] << " " << c[i] << " " << K[i] << " " << A[i] << " " << e[i] << " " << vilifac[i] <<  " " << w[i]*1e6 <<endl;
+       //x = distance from center p= pressure w=velocity K= resistance A=Membran density e= volume fraction vilifac= vilifactor c=concentration
    }
 
+}
+
+//printout in table
+void Model::printout_results(QTableWidget* table)
+{
+    table->setColumnCount(10);
+    table->setHorizontalHeaderLabels(QStringList()<<"distance from center"<<"velocity/volume fraction"<<"velocity"<<"pressure"
+                                     <<"concentration"<<"resistance"<<"Membran density"<<"volume fraction"<<"vilifactor"<<"velocity * 1e6");
+    const int printout_every = 1000;
+    for(int i=0; i<=N; i++)
+    {
+        if (!(i%printout_every))
+        {
+            table->setRowCount(table->rowCount() + 1);
+            table->setItem(table->rowCount() - 1,0,new QTableWidgetItem(QString::number(x[i])));
+            table->setItem(table->rowCount() - 1,1,new QTableWidgetItem(QString::number(w[i]/e[i])));
+            table->setItem(table->rowCount() - 1,2,new QTableWidgetItem(QString::number(w[i])));
+            table->setItem(table->rowCount() - 1,3,new QTableWidgetItem(QString::number(p[i])));
+            table->setItem(table->rowCount() - 1,4,new QTableWidgetItem(QString::number(c[i])));
+            table->setItem(table->rowCount() - 1,5,new QTableWidgetItem(QString::number(K[i])));
+            table->setItem(table->rowCount() - 1,6,new QTableWidgetItem(QString::number(A[i])));
+            table->setItem(table->rowCount() - 1,7,new QTableWidgetItem(QString::number(e[i])));
+            table->setItem(table->rowCount() - 1,8,new QTableWidgetItem(QString::number(vilifac[i])));
+            table->setItem(table->rowCount() - 1,9,new QTableWidgetItem(QString::number(w[i]*1e6)));
+        }
+    }
+    std::cout<<table->rowCount()<<std::endl;
 }
 
 double Model::single_run(const double cpressure, bool verbose)
@@ -346,7 +323,7 @@ double Model::single_run(const double cpressure, bool verbose)
    }
 
 
-  printout_results("/home/michael/bileflow/track.dat");
+  printout_results("/home/cedric/Documents/Qt_Testfiles/","track.dat");
   return p[N];
 
 }
@@ -388,44 +365,41 @@ double Model::shooting()
             pact = (plower + pupper)/2.0;
 
             target = m->single_run(pact, false) - outerpressure;
-            cout << target << endl;
+            cout << "target : " <<target << endl;
             if(target<0.0) {plower = pact;} else {pupper = pact;}
         }
 
-        cout << plower << " " << pupper << " " << pact << " " << target << endl;
+        cout <<"plower : "<< plower << " pupper : " << pupper << " pact :" << pact << " target :" << target << endl;
    //  int tt; cin >> tt;
     }
     return pact;
 
 }
 
-int main()
+void Model::setVal(QList<double> nval)
 {
-    const string workdir = "/home/michael/bileflow1/nash_individual_jan18/";
-    const string identifier = "6921";
+    N = int(nval[0]);
+    outerpressure = nval[1];
+    kappa = nval[2];
+    secretion_rate = nval[3];
+    central_vein_radius = nval[4];
+}
 
-    const string inputfile = workdir + "input_" + identifier + ".dat";
-    const string outputfile =  workdir + "output_" + identifier + ".dat";
-
-    Model model(inputfile);
-
-
-    double pout = model.shooting();
-
-    cout << endl<< pout << endl;
-
-    model.single_run(pout, true);
-
- //   string filename = "/home/michael/bileflow/real_values/output.dat";
-
-    model.printout_results(outputfile);
-=======
-int main(int argc, char *argv[])
+void Model::setTable(Tabcontainer* tabcon_set)
 {
-    QApplication a(argc, argv);
-    Gbileflow w;
-    w.show();
->>>>>>> Visualisierung
+    qtw = tabcon_set->get_table();
+    tabcon = tabcon_set;
+}
 
-    return a.exec();
+void Model::run()
+{
+    double pout = shooting();
+
+    single_run(pout, true);
+
+    printout_results(qtw);
+
+    emit resultReady(qtw, tabcon);
+
+    emit ready();
 }
