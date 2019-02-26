@@ -121,7 +121,7 @@ Model::Model(const string filename)
 
         A[i] = Ap[Mlow]*(1-interx) + Ap[Mlow+1]*interx;
         K[i] = (Kp[Mlow]*(1-interx) + Kp[Mlow+1]*interx)/vilifac[i]/vilifac[i]*k;
-        e[i] = ep[Mlow]*(1-interx) + ep[Mlow+1]*interx*vilifac[i];
+        e[i] = (ep[Mlow]*(1-interx) + ep[Mlow+1]*interx)*vilifac[i];
 
 
     }
