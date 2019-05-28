@@ -10,7 +10,7 @@ using namespace std;
 class Model
 {
 
-    const int N = 1000000;
+    const int N = 10000000;
     double L = 4E-4;
     double tau = 1.5; //tortuosity
     const double outerpressure = 100;
@@ -22,7 +22,11 @@ class Model
     double vilifac_pc = 0.3;
     double vilifac_pp = 0.3;
     const double central_vein_radius = 20E-6; // given in meter
+    const double D = 0.0; // 0E-9; // in m/sec/sec
 
+    const double c0 = 302.25;
+
+    const double ch = 0;
 
 
 
@@ -83,6 +87,8 @@ Model::Model(const string filename)
     c.resize(N+1);
     vilifac.resize(N+1);
 
+
+
     ifstream input(filename.c_str());
     int rows = 0;
 
@@ -141,6 +147,11 @@ Model::Model(const string filename)
 
     for(int i=0; i<=N; i++)
     {
+        p[i] = 0.0;
+        w[i] = 0.0;
+        G[i] = 0.0;
+        c[i] = 0.0;
+
         x[i] = (i+0.0)/N;
 
         vilifac[i] = vilifac_pc + (vilifac_pp-vilifac_pc)*(i+0.0)/N;
@@ -212,11 +223,11 @@ void output_vector(const vector<double> & v)
 void Model::printout_results(const string filename)
 {
    ofstream file(filename.c_str());
-   const int printout_every = 1000;
+   const int printout_every = 1;
 
    for(int i=0; i<=N; i++)
    {
-       if (!(i%printout_every)) file << x[i] << " " << w[i]/e[i] << " " << w[i] << " " << p[i] << " " << c[i] << " " << K[i] << " " << A[i] << " " << e[i] << " " << vilifac[i] <<  " " << w[i]*1e6 <<endl;
+       if (!(i%printout_every)) file << x[i] << " " << w[i]/e[i] << " " << w[i] << " " << p[i] << " " << c[i] << " " << G[i] << " " << A[i] << " " << e[i] << " " << vilifac[i] <<  " " << w[i]*1e6 <<endl;
    }
 
 }
@@ -227,113 +238,158 @@ double Model::single_run(const double cpressure, bool verbose)
 
     double rel_cvr = central_vein_radius/L;
 
-
-
     p[0] = cpressure;
     w[0] = 0.0;
     G[0] = 0.0;
 
-
-
     double pp, qq, ws;
     if (central_vein_radius == 0.0)
     {
-       pp = kappa*A[0]*L*cpressure/2.0;
+       pp = kappa*A[0]*L*(cpressure + R*T*ch)/2.0;
        qq = g(0)*kappa*A[0]*L*L*R*T/4.0;
     }
     else
     {
-       pp = kappa*A[0]*L*cpressure;
+       pp = kappa*A[0]*L*(cpressure + R*T*ch);
        qq = g(0)*kappa*A[0]*L*L*R*T;
     }
 
-    ws = (-pp/2.0 + sqrt(pp*pp/4.0 + qq));
+
+    if (D==0.0)
+    {
+        ws = (-pp/2.0 + sqrt(pp*pp/4.0 + qq));
+    }
+    else
+    {
+        ws = kappa*A[0]*L*(R*T*c0-cpressure);
+    }
+
+    cout << "p, q, ws: " << pp << "  " << qq << "  " << ws<<endl;
+    cout << "check " << ws << " " << kappa*A[0]*L*(R*T*(g(0)/ws*L-ch)-cpressure) << " " << R*T*(g(0)/ws*L-ch)-cpressure << "  " << R*T*(g(0)/ws*L-ch) << endl;
+    cout << ws*ws+pp*ws-qq << endl;
+    cout << ws << " " << qq/ws -pp << endl;
+ //   cout << "conc.: " << g(0)/ws*L << " " <<
+
+    cout << endl;
 
    // const double mu = 1.0;
     if (central_vein_radius == 0.0)
     {
-        c[0] = g(0)/2.0/ws;
+        c[0] = g(0)/2.0/ws*L;
     }
     else
     {
-        c[0] = g(0)/ws;
+        c[0] = g(0)/ws*L;
     }
 
-    const int substeps = 100;
+    if(D>0.0) c[0] = c0;
 
-    const bool adaptive = false;
-    const int adaptive_to_N = 10;
+    //cout << c[0] << " " << c0 << " " << ws << endl;
 
-
+    int firstphase = 5000;
 
     for (int i=1; i<=N; i++)
     {
-        double fine_deltax = deltax/substeps;
-        double fine_G = 0.0;
-        double fine_w = 0.0;
-        double fine_p = cpressure;
-        double fine_c = 0.0;
+        double xavg = (x[i]+x[i-1])/2.0 + rel_cvr;
 
-        if(adaptive && (i<=adaptive_to_N)) // adaptive code does not work
-       {
-           // cout << i << endl; int ttt; cin >> ttt;
+        //double tau = 1.85;
 
-           for(int j=1; j<=substeps; j++)
-           {
-               double acx = rel_cvr + (i-1)*deltax + (j-0.5)*fine_deltax;
-               fine_G += g(i)*acx*fine_deltax;
-               fine_p -= fine_deltax*tau*K[i]*L*fine_w;
-               if ((i==1) && (j==1))
-               {
-                   fine_w += fine_deltax*ws;
-               }
-               else
-               {
-                   fine_w += fine_deltax*kappa*A[0]*L*(R*T*fine_G*L/fine_w/acx - fine_p);
-               }
-               fine_w *= (acx-0.5*fine_deltax)/(acx+0.5*fine_deltax);
-               fine_c = fine_G/(acx+0.5*fine_deltax)/fine_w;
-               if (verbose)
-               {
-                   cout << j << " " << fine_p << " " << fine_w << " " << fine_c << " " << fine_G << endl;
-               }
-           }
-           G[i] = fine_G;
-           w[i] = fine_w;
-           p[i] = fine_p;
-           c[i] = fine_c;
-
-           if (verbose) {int tt; cin >> tt;}
-
-       }
-       else
-       {
-           double xavg = (x[i]+x[i-1])/2.0 + rel_cvr;
-
-           //double tau = 1.85;
-
-           G[i] = G[i-1] + (g(i)+g(i-1))/2.0*xavg*deltax;
-           p[i] = p[i-1] - deltax*tau*K[i]*L*w[i-1];
+        G[i] = ((x[i]+rel_cvr)*(x[i]+rel_cvr)-rel_cvr*rel_cvr)/2.0*g(0);  // G[i-1] + (g(i)+g(i-1))/2.0*xavg*deltax;
+        double Gavg = (xavg*xavg-rel_cvr*rel_cvr)/2.0*g(0);
+        p[i] = p[i-1] - deltax*tau*K[i]*L*w[i-1];
 
 
-           // cout << K[i]*w[i] << " " << K[i] << " " << w[i] << endl;
+        // cout << K[i]*w[i] << " " << K[i] << " " << w[i] << endl;
 
 
-           if (i==1)
-           {
-               w[i] = w[i-1] + deltax*ws;
-           } else
-           {
-               double diff = kappa*A[i]*L*(R*T*G[i]*L/w[i-1]/xavg - p[i-1]);
+        if (i<=firstphase)
+        {
+            w[i] = w[i-1] + deltax*ws;
+            w[i] = w[i]*(x[i-1] + rel_cvr)/(x[i]+ rel_cvr);
 
-               if (diff<0.0) diff = 0.0;
-               double ww = w[i-1] + deltax*diff;
-               w[i] = ww*(x[i-1] + rel_cvr)/(x[i]+ rel_cvr);
-           }
+            if (i==1 )
+            {
+                c[i] = c[i-1];
+            }
+            else
+            {
+               c[i] = G[i]/(x[i]+rel_cvr)/w[i]*L;
+            }
 
-           c[i] = G[i]/(x[i]+rel_cvr)/w[i];
-       }
+
+            cout << g(0)/ws*L << endl;
+            cout << G[1]/w[1]/(x[1]+rel_cvr)*L << endl;
+            cout << g(0) << endl;
+            cout << G[1] << endl;
+            cout << rel_cvr << endl;
+
+            cout << endl;
+
+
+        } else
+        {
+            double cavg, wavg;
+            if (D==0)
+            {
+                wavg = w[i-1] +  (w[i-1]-w[i-2])/2.0;
+                wavg *= xavg/(x[i]+ rel_cvr);
+                cavg = Gavg/wavg/xavg*L;
+            }
+            else
+            {
+                cavg = c[i-1] + L*deltax/2.0*(-L*G[i]/xavg+c[i-1]*w[i-1])/D;
+            }
+
+            if (i==110)
+            {
+                cout << i << " " << w[i-1] << " " << w[i-2] << endl;
+                cout << "wavg "<< wavg << " " << L*deltax/2.0*(w[i-1]-w[i-2]) << endl;
+
+                cout << "cavg " << cavg << endl;
+                cout << G[i-1] << "  " << Gavg << "  " << G[i] << endl;
+
+            }
+
+
+            double diff = kappa*A[i]*(R*T*(cavg-ch) - p[i-1]);
+
+            if (diff<0.0) diff = 0.0;
+            double ww = w[i-1] + deltax*L*diff;
+            w[i] = ww*(x[i-1] + rel_cvr)/(x[i]+ rel_cvr); // due to divergence in cylinder coordinates
+
+            if (D==0)
+            {
+                c[i] = G[i]/(x[i]+rel_cvr)/w[i]*L;
+            }
+            else
+            {
+                double Gavg = (G[i]+G[i-1])/2.0;
+                double wavg = (w[i]+w[i-1])/2.0;
+                c[i] = c[i-1] + L*deltax*(-L*Gavg/xavg+c[i-1]*wavg)/D;
+                //   if(verbose){    cout << c[i]-c[i-1] << " " << Gavg/xavg/D-c[i-1]*wavg/D << " " << Gavg/xavg/D <<" "<< c[i-1]*wavg/D << " " << deltax*(Gavg/xavg/D-c[i-1]*wavg/D) << endl;
+                //     int tt; cin>> tt;}
+            }
+
+            if (i==110)
+            {
+                cout << "i=" << i << ":" << endl;
+                double wabl = (w[i]-w[i-1])/deltax/L;
+                cout << "w' " << wabl << endl;
+                cout << "c " << c[i] << endl;
+                cout <<  "cavg " << cavg << endl;
+                cout <<  "wavg " << wavg << endl;
+                cout << "diff"<< endl;
+                cout << R*T*(cavg-ch) - p[i-1] << endl;
+                cout << "diff "<< diff << endl;
+                cout << kappa*A[i]*(R*T*(g(0)/wabl-ch)-cpressure) << endl << endl;
+
+
+            }
+
+        }
+
     }
+
 
     if (verbose)
    {
@@ -343,7 +399,7 @@ double Model::single_run(const double cpressure, bool verbose)
    }
 
 
-  printout_results("/home/michael/bileflow/track.dat");
+  printout_results("/home/michael/bileflow1/test/track.dat");
   return p[N];
 
 }
@@ -398,8 +454,8 @@ double Model::shooting()
 
 int main()
 {
-    const string workdir = "/home/michael/bileflow1/nash_individual_jan18/";
-    const string identifier = "6921";
+    const string workdir = "/home/michael/bileflow1/test/";
+    const string identifier = "6718";
 
     const string inputfile = workdir + "input_" + identifier + ".dat";
     const string outputfile =  workdir + "output_" + identifier + ".dat";
@@ -407,11 +463,11 @@ int main()
     Model model(inputfile);
 
 
-    double pout = model.shooting();
+  //  double pout = model.shooting();
 
-    cout << endl<< pout << endl;
+  //  cout << endl<< pout << endl;
 
-    model.single_run(pout, true);
+    model.single_run(200, true);
 
  //   string filename = "/home/michael/bileflow/real_values/output.dat";
 
