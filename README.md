@@ -2,7 +2,7 @@
 
 ## About bileflow
 
-bileflow is a program implementing the solution of an ordinary differential equation modeling the flow of bile through a liver lobule. The details of the differential equation and its context are described in Segovia-Miranda et al. (2019): 3D spatially-resolved geometrical and functional models of human liver tissue reveal new aspects of NAFLD progression. 
+bileflow is a program implementing the solution of an ordinary differential equation modeling the flow of bile through a liver lobule. The details of the differential equation and its context are described in [Segovia-Miranda et al. (2019): 3D spatially-resolved geometrical and functional models of human liver tissue reveal new aspects of NAFLD progression](https://www.nature.com/articles/s41591-019-0660-7).
 
 ## Installation 
 
@@ -10,12 +10,15 @@ The code is in C++, it has no input parameters, data specific to a sample is con
 
 The compilation was done using g++. Installation is done using
 
-qmake bileflow.pro
-make
+    git clone https://github.com/MichaelKuecken/bileflow.git
+    cd bileflow
+    qmake bileflow.pro
+    make
+    ./bileflow
 
 ## Running bileflow
 
-The code is executed using ../bileflow The output is a textfile with a name of the format "output_" with the solution of the ordinary differential equation.
+The code is executed using ```./bileflow``` The output is a textfile with a name of the format "output_" with the solution of the ordinary differential equation.
 
 The output is organized as follows: 
 * 1st column: normalzed distance from the central vein
