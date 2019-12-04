@@ -136,11 +136,10 @@ Model::Model(const string filename)
 
     ss >> tau;
 
-    tau = tau*tau*2.5; // 2.5 needs to be justified
+    tau = tau*tau*2.5;  
 
     cout << rows << " " << L << " " << tau << endl;
 
- //   string line;
     getline(input, line);
     stringstream st(line);
 
@@ -149,13 +148,7 @@ Model::Model(const string filename)
 
     cout << vilifac_pc << " " << vilifac_pp << endl;
 
-
-  //  int tt; cin >> tt;
-
     rows -= 2;
-
-   // cout << connectp[0] << endl;
-   // int tt; cin >> tt;
 
     for(int i=0; i<=N; i++)
     {
@@ -210,14 +203,6 @@ Model::Model(const string filename)
 
     }
 
-  //  int tt; cin >> tt;
-
- /*   for(int i=0; i<=N; i++)
-    {
-        cout << A[i] << " " << K[i] << " " << e[i] << endl;
-
-    } */
-
 }
 
 double Model::g(const int  i)
@@ -234,16 +219,6 @@ void output_vector(const vector<double> & v)
         cout << v[i] << endl;
     }
 }
-
-/*void output_vector(const vector<double> & v)
-{
-    int n = v.size();
-
-    for(int i=0; i<n; i++)
-    {
-        cout << v[i] << endl;
-    }
-} */
 
 void Model::printout_results(const string filename)
 {
@@ -264,9 +239,6 @@ void Model::printout_results(const string filename)
        {
            double cderiv = (c[i]-c[i-1])/deltax/L;
            fluxratio = abs(diffusion*cderiv/w[i]*e[i]/c[i]);
-
-    //       cout << i << "  " << diffusion << "  " << cderiv << "  " << w[i]/e[i] << "  " << c[i] << "  " << fluxratio << endl;
-    //       int tt; cin >> tt;
        }
        double actx = (x[i]+central_vein_radius/L)*L*1e6;
 
@@ -275,7 +247,6 @@ void Model::printout_results(const string filename)
                                      << A[i] << " " << fluxratio << " " << connect[i] <<  " "
                                      << w[i]*1e6/e[i] << " " <<  w[i]*1e6/e[i]/connect[i] << " " << w[i]*1e6 << " " << w[i]*1e6*actx*2*3.141592653 << endl;
    }
- // cout << "printout" << endl;
 }
 
 double Model::single_run(const double cpressure, bool verbose)
@@ -308,16 +279,7 @@ double Model::single_run(const double cpressure, bool verbose)
     {
         ws = kappa*A[0]*L*(R*T*c0-cpressure);
     }
-
-  /*  cout << "p, q, ws: " << pp << "  " << qq << "  " << ws<<endl;
-    cout << "check " << ws << " " << kappa*A[0]*L*(R*T*(g(0)/ws*L-ch)-cpressure) << " " << R*T*(g(0)/ws*L-ch)-cpressure << "  " << R*T*(g(0)/ws*L-ch) << endl;
-    cout << ws*ws+pp*ws-qq << endl;
-    cout << ws << " " << qq/ws -pp << endl;
- //   cout << "conc.: " << g(0)/ws*L << " " <<
-
-    cout << endl; */
-
-   // const double mu = 1.0;
+ 
     if (central_vein_radius == 0.0)
     {
         c[0] = g(0)/2.0/ws*L;
@@ -331,7 +293,6 @@ double Model::single_run(const double cpressure, bool verbose)
 
     if (verbose) cout << setprecision(8) <<  c[0] << endl;
 
-  //  int tt; cin >> tt;
     int firstphase = 1;
 
     for (int i=1; i<=N; i++)
@@ -340,11 +301,7 @@ double Model::single_run(const double cpressure, bool verbose)
 
         //double tau = 1.85;
 
-        G[i] = ((x[i]+rel_cvr)*(x[i]+rel_cvr)-rel_cvr*rel_cvr)/2.0*g(0);  // G[i-1] + (g(i)+g(i-1))/2.0*xavg*deltax;
-     //   double Gavg = (xavg*xavg-rel_cvr*rel_cvr)/2.0*g(0);
-
-
-        // cout << K[i]*w[i] << " " << K[i] << " " << w[i] << endl;
+        G[i] = ((x[i]+rel_cvr)*(x[i]+rel_cvr)-rel_cvr*rel_cvr)/2.0*g(0);  
 
 
         if (i<=firstphase)
@@ -362,76 +319,8 @@ double Model::single_run(const double cpressure, bool verbose)
                c[i] = G[i]/(x[i]+rel_cvr)/w[i]*L;
             }
 
-
-     /*      cout << g(0)/ws*L << endl;
-            cout << G[1]/w[1]/(x[1]+rel_cvr)*L << endl;
-            cout << g(0) << endl;
-            cout << G[1] << endl;
-            cout << rel_cvr << endl;
-
-            cout << endl; */
-
-
         } else
         {
-         /*   double cavg, wavg;
-            if (D==0)
-            {
-                wavg = w[i-1] +  (w[i-1]-w[i-2])/2.0;
-                wavg *= xavg/(x[i]+ rel_cvr);
-                cavg = Gavg/wavg/xavg*L;
-            }
-            else
-            {
-                cavg = c[i-1] + L*deltax/2.0*(-L*G[i]/xavg+c[i-1]*w[i-1])/D;
-            }
-
-            if (i==110)
-            {
-                cout << i << " " << w[i-1] << " " << w[i-2] << endl;
-                cout << "wavg "<< wavg << " " << L*deltax/2.0*(w[i-1]-w[i-2]) << endl;
-
-                cout << "cavg " << cavg << endl;
-                cout << G[i-1] << "  " << Gavg << "  " << G[i] << endl;
-
-            }
-
-
-            double diff = kappa*A[i]*(R*T*(cavg-ch) - p[i-1]);
-
-            if (diff<0.0) diff = 0.0;
-            double ww = w[i-1] + deltax*L*diff;
-            w[i] = ww*(x[i-1] + rel_cvr)/(x[i]+ rel_cvr); // due to divergence in cylinder coordinates
-
-            if (D==0)
-            {
-                c[i] = G[i]/(x[i]+rel_cvr)/w[i]*L;
-            }
-            else
-            {
-                double Gavg = (G[i]+G[i-1])/2.0;
-                double wavg = (w[i]+w[i-1])/2.0;
-                c[i] = c[i-1] + L*deltax*(-L*Gavg/xavg+c[i-1]*wavg)/D;
-                //   if(verbose){    cout << c[i]-c[i-1] << " " << Gavg/xavg/D-c[i-1]*wavg/D << " " << Gavg/xavg/D <<" "<< c[i-1]*wavg/D << " " << deltax*(Gavg/xavg/D-c[i-1]*wavg/D) << endl;
-                //     int tt; cin>> tt;}
-            }
-
-            if (i==110)
-            {
-                cout << "i=" << i << ":" << endl;
-                double wabl = (w[i]-w[i-1])/deltax/L;
-                cout << "w' " << wabl << endl;
-                cout << "c " << c[i] << endl;
-                cout <<  "cavg " << cavg << endl;
-                cout <<  "wavg " << wavg << endl;
-                cout << "diff"<< endl;
-                cout << R*T*(cavg-ch) - p[i-1] << endl;
-                cout << "diff "<< diff << endl;
-                cout << kappa*A[i]*(R*T*(g(0)/wabl-ch)-cpressure) << endl << endl;
-
-
-            } */
-
             double actx = (x[i]+rel_cvr)*L;  // unnormalized x
 
             double Gend = ((x[i]+rel_cvr)*(x[i]+rel_cvr)-rel_cvr*rel_cvr)/2.0*g(0)*L*L; // already in unnormalized coordinates
@@ -440,7 +329,6 @@ double Model::single_run(const double cpressure, bool verbose)
             double relw_iterror = 1.0;
             double relp_iterror = 1.0;
 
-      //      cout << i << "  w[i-1]  "<< w[i-1] << "  p[i-1]  " << p[i-1] << endl;
 
             double exit_crit=1E-10;
 
@@ -468,28 +356,12 @@ double Model::single_run(const double cpressure, bool verbose)
                 relw_iterror = abs((wnew-wold)/wold);
                 relp_iterror = abs((pnew-pold)/pold);
 
-           /*     cout << "wit "<< wit << "   pit " << pit << endl;
-                cout << "f  " << f << "  g " << g << endl;
-                cout << "dfdw  " << dfdw << "  dfdp " << dfdp << endl;
-                cout << "dgdw  " << dgdw << "  dgdp " << dgdp << endl;
-                cout << "det  " << det << endl;
-                int tt; cin >> tt; */
-
             }
 
-          /*  if (verbose)
-                 {
-                if (i%100==0)
-                cout << x[i] << " " << (pit-p[i-1])/deltax/L <<  " " << K[i]*tau*w[i-1] << " "
-                     << Gend/actx/wit << " " << R*T*(Gend/actx/wit - ch) << " " << kappa*A[i]*(R*T*(Gend/actx/wit - ch) - pit)    << " "
-                     << pit << " " <<  wit/actx << " " <<  kappa*A[i]*(R*T*(Gend/actx/wit - ch) - pit) - wit/actx << " " << (wit-w[i-1])/deltax/L << endl;
-           // int tt;cin >> tt;
-                 } */
 
             w[i] = wit;
             p[i] = pit;
             c[i] = Gend/w[i]/actx;
- // cout << i << endl;
         }
 
     }
@@ -497,9 +369,9 @@ double Model::single_run(const double cpressure, bool verbose)
 
     if (verbose)
    {
-   //    output_vector(w);
-   //     cout << endl;
-    //   output_vector(p);
+      output_vector(w);
+      cout << endl;
+      output_vector(p);
    }
 
 
@@ -568,7 +440,6 @@ int main()
         {
             string inputfile = ent->d_name;
             if (inputfile.substr(0,5) != "input") continue;
-          //  printf ("%s\n", ent->d_name);
 
             string label = inputfile.substr(6,5);
             cout << label << endl;
@@ -584,11 +455,8 @@ int main()
 
             double pout = model.shooting();
 
-          //  cout << endl<< pout << endl;
 
             model.single_run(pout, true);
-
-         //   string filename = "/home/michael/bileflow/real_values/output.dat";
 
             model.printout_results(outputfile);
 
@@ -602,25 +470,6 @@ int main()
         perror ("");
         return EXIT_FAILURE;
     }
-
-
-/*    const string identifier = "7173a";
-
-    const string inputfile = workdir + "input_" + identifier + ".dat";
-    const string outputfile =  workdir + "output_" + identifier + ".dat";
-
-    Model model(inputfile);
-
-
-    double pout = model.shooting();
-
-  //  cout << endl<< pout << endl;
-
-    model.single_run(pout, true);
-
- //   string filename = "/home/michael/bileflow/real_values/output.dat";
-
-    model.printout_results(outputfile); */
 
     return 0;
 }
