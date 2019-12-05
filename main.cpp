@@ -430,7 +430,7 @@ double Model::shooting()
 
 int main()
 {
-    const string workdir = "/home/michael/bileflow1/simulations_june19/nash/";
+    const string workdir = "./";
 
     DIR *dir;
     struct dirent *ent;
