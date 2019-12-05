@@ -21,9 +21,9 @@ The compilation was done using g++. Installation is done using
 The code is executed using ```./bileflow``` The output is a textfile with a name of the format "output_" with the solution of the ordinary differential equation.
 
 The output is organized as follows: 
-* 1st column: normalzed distance from the central vein
+* 1st column: normalized distance from the central vein
 * 4th column: pressure in Pa
-* 5th column: concentration im mmol/l
+* 5th column: concentration in mmol/l
 * 10th column: canaliculi velocity in mum/sec
 
 The remaining columns include auxiliary variables for testing the code.  
